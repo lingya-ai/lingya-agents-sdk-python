@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ["3.10", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          path: lingya-agents-sdk-python
+      - uses: actions/checkout@v5
+        with:
+          repository: lingya-ai/lingya-agents-openapi
+          ref: 7362df0
+          path: lingya-agents-openapi
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: lingya-agents-sdk-python/pyproject.toml
+      - run: pip install -e ".[test]" -i https://pypi.tuna.tsinghua.edu.cn/simple
+        working-directory: lingya-agents-sdk-python
+      - run: ruff check lingya_agents_sdk/client.py lingya_agents_sdk/events.py lingya_agents_sdk/sse.py tests scripts
+        working-directory: lingya-agents-sdk-python
+      - run: mypy
+        working-directory: lingya-agents-sdk-python
+      - run: python scripts/audit_models.py
+        working-directory: lingya-agents-sdk-python
+      - run: pytest -m "not live"
+        working-directory: lingya-agents-sdk-python
+      - run: python -m build --no-isolation
+        working-directory: lingya-agents-sdk-python
