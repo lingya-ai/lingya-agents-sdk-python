@@ -27,7 +27,7 @@ Repository = "https://github.com/lingya-ai/lingya-agents-sdk-python"
 Issues = "https://github.com/lingya-ai/lingya-agents-sdk-python/issues"
 
 [project.optional-dependencies]
-test = ["build>=1.2", "mypy>=1.17", "pytest>=8.4", "ruff>=0.12"]
+test = ["build>=1.2", "mypy>=1.17", "pytest>=8.4", "ruff>=0.12", "setuptools>=75", "wheel"]
 
 [tool.setuptools.packages.find]
 include = ["lingya_agents_sdk*"]
