@@ -52,7 +52,10 @@ class LingyaApiError(RuntimeError):
 
 
 class LingyaAgentsClient:
-    """Lingya Agents SDK 入口，仅用于可信服务端。 / SDK entry point for trusted servers only."""
+    """Lingya Agents SDK 入口，仅用于可信服务端。 / SDK entry point for trusted servers only.
+
+    客户端保存 channel 范围的凭证，但只有 [for_user()] 返回的用户客户端可以发起请求。
+    """
 
     def __init__(self, base_url: str, channel_id: str, credentials: OpenApiCredentials) -> None:
         if not channel_id:
@@ -62,7 +65,14 @@ class LingyaAgentsClient:
         self._credentials = credentials
 
     def for_user(self, external_user_id: str) -> LingyaAgentsUserClient:
-        """绑定外部用户并为其后续请求独立签名。 / Bind one external user for subsequent signed calls."""
+        """绑定外部用户并为其后续请求独立签名。 / Bind one external user for signed calls.
+
+        Args:
+            external_user_id: 调用方系统的稳定用户 ID，UTF-8 编码后为 1..256 字节且不能含 NUL。
+
+        Returns:
+            注入外部用户身份的同步客户端。
+        """
         return LingyaAgentsUserClient(self._base_url, self.channel_id, self._credentials, external_user_id)
 
 
@@ -97,7 +107,18 @@ class LingyaAgentsUserClient:
         body: BaseModel | str | None = None,
         query: Sequence[QueryParameter] = (),
     ) -> ModelT:
-        """调用 JSON 接口并解析为明确 Pydantic 模型。 / Call a JSON endpoint and parse one explicit Pydantic model."""
+        """调用 JSON 接口并解析为明确 Pydantic 模型。 / Parse JSON into one explicit model.
+
+        Args:
+            method: HTTP method。
+            suffix: 已完成路径转义的 channel chat 相对路径。
+            response_type: 与契约响应对应的 Pydantic 模型类。
+            body: 明确的请求模型或最终 UTF-8 JSON 字符串；无请求体时省略。
+            query: 保留顺序并允许重复名称的查询参数。
+
+        Raises:
+            LingyaApiError: 服务端返回非 2xx 状态。
+        """
         return response_type.model_validate_json(self.raw_response(method, suffix, body, query).content)
 
     def request_status(
@@ -107,11 +128,17 @@ class LingyaAgentsUserClient:
         body: BaseModel | str | None = None,
         query: Sequence[QueryParameter] = (),
     ) -> int:
-        """调用状态接口并返回 HTTP 状态码。 / Call a status endpoint and return its HTTP status."""
+        """调用无响应正文的端点并返回 2xx HTTP 状态码。 / Return the successful HTTP status."""
         return self.raw_response(method, suffix, body, query).status_code
 
     def request_bytes(self, method: str, suffix: str, query: Sequence[QueryParameter] = ()) -> bytes:
-        """下载二进制响应。 / Download an exact binary response."""
+        """下载未经文本转换的二进制响应。 / Download exact response bytes.
+
+        Args:
+            method: HTTP method，通常为 `GET`。
+            suffix: 已编码的相对路径。
+            query: 保留顺序的查询参数。
+        """
         return self.raw_response(method, suffix, query=query, accept="application/octet-stream").content
 
     def raw_response(
@@ -122,7 +149,20 @@ class LingyaAgentsUserClient:
         query: Sequence[QueryParameter] = (),
         accept: str = "application/json",
     ) -> httpx.Response:
-        """发送受控底层请求；非成功状态转换为 [LingyaApiError]。 / Send a controlled request and reject non-success responses."""
+        """固定最终请求内容后签名并发送。 / Sign and send the exact final request.
+
+        每次调用重新生成 timestamp 与 nonce，不对写请求自动重试。
+
+        Args:
+            method: HTTP method。
+            suffix: 已完成路径转义的相对路径，本方法不会二次编码。
+            body: 明确请求模型或最终 JSON 字符串，最大 2 MiB。
+            query: 最终查询参数；顺序和重复键均参与签名。
+            accept: 精确 Accept 值，例如 `application/json`、`text/event-stream` 或 `text/csv`。
+
+        Raises:
+            LingyaApiError: 服务端返回非 2xx 状态，异常不包含 secret。
+        """
         request = self._signed_request(method, suffix, body, query, accept)
         response = self._http.send(request)
         if not response.is_success:
@@ -130,7 +170,17 @@ class LingyaAgentsUserClient:
         return response
 
     def stream_chat_events(self, conversation_id: str, message_id: str) -> Iterator[AiChatBriefEvent]:
-        """订阅对话 SSE，并返回强类型事件或 raw JSON fallback。 / Stream typed conversation events with a raw-JSON fallback."""
+        """订阅对话 SSE，并返回强类型事件或 raw JSON fallback。 / Stream typed conversation events.
+
+        Args:
+            conversation_id: 要订阅的会话 ID。
+            message_id: 触发本次生成的消息 ID。
+
+        Yields:
+            15 种已知事件之一；未知 type 使用包含原始 JSON 的明确 fallback。
+
+        迭代提前结束或抛出异常时始终关闭响应流。
+        """
         suffix = f"/conversations/{quote(conversation_id, safe='')}/stream"
         request = self._signed_request("POST", suffix, f'{{"messageId":"{message_id}"}}', (), "text/event-stream")
         response = self._http.send(request, stream=True)
@@ -189,5 +239,13 @@ class LingyaAgentsUserClient:
 
 
 def sign_canonical(secret_key: str, canonical: str) -> str:
-    """计算固定规范串的 HMAC，用于 golden vector 验证。 / Sign a deterministic canonical string for golden-vector tests."""
+    """计算固定规范串的 HMAC。 / Sign a deterministic canonical string.
+
+    Args:
+        secret_key: HMAC-SHA256 secret。
+        canonical: 已按协议字段顺序拼接的规范字符串。
+
+    Returns:
+        小写十六进制签名。
+    """
     return hmac.new(secret_key.encode("utf-8"), canonical.encode("utf-8"), hashlib.sha256).hexdigest()

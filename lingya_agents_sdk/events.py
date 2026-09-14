@@ -77,7 +77,14 @@ class _EventEnvelope(BaseModel):
 
 
 def decode_ai_chat_brief_event(raw_json: str) -> AiChatBriefEvent:
-    """按 type 解码事件，未知分支保留完整 JSON。 / Decode by type and preserve exact JSON for unknown branches."""
+    """按 type 解码事件，未知分支保留完整 JSON。 / Decode by type with an exact fallback.
+
+    Args:
+        raw_json: 一个完整事件对象的 JSON 原文。
+
+    Returns:
+        15 种已知事件之一，或包含 type 与输入原文的未知事件。
+    """
     event_type = _EventEnvelope.model_validate_json(raw_json).type
     model = _event_model(event_type)
     if model is None:
@@ -86,7 +93,14 @@ def decode_ai_chat_brief_event(raw_json: str) -> AiChatBriefEvent:
 
 
 def decode_tool_extension(raw_json: str) -> ToolExtension:
-    """按 category 解码工具扩展，未知分支保留完整 JSON。 / Decode an extension by category with exact fallback JSON."""
+    """按 category 解码工具扩展。 / Decode an extension by category.
+
+    Args:
+        raw_json: 一个完整工具扩展对象的 JSON 原文。
+
+    Returns:
+        12 种已知扩展之一，或包含 category 与输入原文的未知扩展。
+    """
     category = _ToolExtensionEnvelope.model_validate_json(raw_json).category
     model = _tool_extension_model(category)
     if model is None:
