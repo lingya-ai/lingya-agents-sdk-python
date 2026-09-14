@@ -52,6 +52,8 @@ python -m venv .venv
 .venv/Scripts/python -m build --no-isolation
 ```
 
+CI 使用 `requirements-ci.txt` 固定完整依赖解析结果；依赖范围仍以 `pyproject.toml` 为发布契约。
+
 真实测试还需要设置 `OPENAPI_AK`、`OPENAPI_SK`、`LINGYA_LIVE_BASE_URL` 与 `LINGYA_LIVE_CHANNEL_ID`，然后运行 `pytest -m live`。测试逐一核对契约中的 46 个 method/path，并在 `build/reports/live-api/` 生成脱敏报告。
 
 契约来源：`lingya-ai/lingya-agents-openapi@7362df0`，OpenAPI Generator `7.25.0`。

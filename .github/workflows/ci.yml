@@ -28,7 +28,7 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
           cache-dependency-path: lingya-agents-sdk-python/pyproject.toml
-      - run: pip install -e ".[test]" -i https://pypi.tuna.tsinghua.edu.cn/simple
+      - run: pip install -r requirements-ci.txt && pip install -e . --no-deps
         working-directory: lingya-agents-sdk-python
       - run: ruff check lingya_agents_sdk/client.py lingya_agents_sdk/events.py lingya_agents_sdk/sse.py tests scripts
         working-directory: lingya-agents-sdk-python
