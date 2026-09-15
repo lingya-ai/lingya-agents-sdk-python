@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+
+- Bind `channel_id` once and expose all 46 operations through generated, grouped facades.
+- Keep generic HTTP helpers as deprecated compatibility APIs until 1.0.
+- Generate public method signatures from contract 0.1.3 operation metadata.
+
 ## 0.1.2
 
 - 首个 Python SDK：覆盖 46 个 Agents OpenAPI 路由、HMAC-SHA256-V1、SSE 和强类型模型。

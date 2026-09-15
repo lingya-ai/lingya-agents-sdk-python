@@ -1,0 +1,30 @@
+name: Publish PyPI package
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Verify release tag
+        run: test "${GITHUB_REF_NAME#v}" = "$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml", "rb"))["project"]["version"])')"
+      - run: pip install -r requirements-ci.txt -i https://pypi.tuna.tsinghua.edu.cn/simple && pip install -e . --no-deps
+      - run: python scripts/generate_bound_api.py && ruff check lingya_agents_sdk/client.py lingya_agents_sdk/bound_api.py lingya_agents_sdk/events.py lingya_agents_sdk/sse.py tests scripts && mypy && python scripts/audit_models.py && pytest -m "not live"
+      - run: python -m build --no-isolation
+      - name: Publish through PyPI trusted publishing
+        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes

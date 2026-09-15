@@ -26,7 +26,8 @@ Calls and SSE
 
 ```python
 from lingya_agents_sdk import LingyaAgentsClient, OpenApiCredentials
-from lingya_agents_sdk.models.ai_chat_submission import AiChatSubmission
+from lingya_agents_sdk.models.ai_chat_input import AiChatInput
+from lingya_agents_sdk.models.ai_chat_stream_input import AiChatStreamInput
 
 client = LingyaAgentsClient(
     "https://lingtong.lingya.tech",
@@ -34,18 +35,16 @@ client = LingyaAgentsClient(
     OpenApiCredentials("access-key", "secret-key"),
 )
 with client.for_user("your-system-user-id") as user:
-    submission = user.request_model(
-        "POST",
-        "",
-        AiChatSubmission,
-        '{"query":"你好"}',
-    )
-    for event in user.stream_chat_events(submission.conversation_id, submission.message_id):
+    submission = user.chat.create_chat(AiChatInput(query="你好"))
+    for event in user.chat.stream_chat_events(
+        submission.conversation_id,
+        AiChatStreamInput(messageId=submission.message_id),
+    ):
         print(event.type)
 ```
 
-`QueryParameter` 保留参数顺序并支持重复名称；`request_model` 只接受明确的 Pydantic 返回模型，二进制下载使用 `request_bytes`。
-`QueryParameter` preserves parameter order and supports duplicate names. `request_model` accepts only explicit Pydantic response models, while binary downloads use `request_bytes`.
+十个业务分组覆盖全部 46 个接口；`channel_id` 只在根客户端构造时提供，`low_level` 与通用请求方法仅作为迁移入口保留到 1.0。
+Ten business groups cover all 46 operations; provide `channel_id` only to the root client, while `low_level` and generic request methods remain migration-only APIs until 1.0.
 
 15 种已知事件和 12 种已知工具扩展均映射为明确 DTO；服务端新增判别值时，以 `raw_json` 保留原始对象。
 All 15 known events and 12 known tool extensions map to explicit DTOs. When the server adds a discriminator value, the original object is retained in `raw_json`.
@@ -56,7 +55,7 @@ Development verification
 ```bash
 python -m venv .venv
 .venv/Scripts/pip install -e ".[test]" -i https://pypi.tuna.tsinghua.edu.cn/simple
-.venv/Scripts/python -m ruff check lingya_agents_sdk/client.py lingya_agents_sdk/events.py lingya_agents_sdk/sse.py tests scripts
+.venv/Scripts/python -m ruff check lingya_agents_sdk/client.py lingya_agents_sdk/bound_api.py lingya_agents_sdk/events.py lingya_agents_sdk/sse.py tests scripts
 .venv/Scripts/python -m mypy
 .venv/Scripts/python scripts/audit_models.py
 .venv/Scripts/python -m pytest -m "not live"
@@ -72,5 +71,5 @@ Live tests also require `OPENAPI_AK`, `OPENAPI_SK`, `LINGYA_LIVE_BASE_URL`, and 
 测试会逐一核对契约中的 46 个 method/path，并在 `build/reports/live-api/` 生成脱敏报告。
 The tests verify every one of the 46 contract method/path pairs and write a redacted report to `build/reports/live-api/`.
 
-契约来源为 `lingya-ai/lingya-agents-openapi@7362df0`，OpenAPI Generator 版本为 `7.25.0`。
-The contract source is `lingya-ai/lingya-agents-openapi@7362df0`, and the OpenAPI Generator version is `7.25.0`.
+契约来源为 `lingya-ai/lingya-agents-openapi@v0.1.3`，OpenAPI Generator 版本为 `7.25.0`。
+The contract source is `lingya-ai/lingya-agents-openapi@v0.1.3`, and the OpenAPI Generator version is `7.25.0`.

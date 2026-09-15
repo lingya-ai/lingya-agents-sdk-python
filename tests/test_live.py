@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-import json
 import os
 import re
 import uuid
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TypeVar
 
 import pytest
 
@@ -16,15 +17,25 @@ from lingya_agents_sdk.client import (
     LingyaAgentsUserClient,
     LingyaApiError,
     OpenApiCredentials,
-    QueryParameter,
 )
-from lingya_agents_sdk.models.ai_chat_submission import AiChatSubmission
-from lingya_agents_sdk.models.conversation_share_created import ConversationShareCreated
-from lingya_agents_sdk.models.generate_pre_signed_url_output import GeneratePreSignedUrlOutput
-from lingya_agents_sdk.sse import decode_sse_lines
+from lingya_agents_sdk.models.ai_chat_events_batch_input import AiChatEventsBatchInput
+from lingya_agents_sdk.models.ai_chat_input import AiChatInput
+from lingya_agents_sdk.models.ai_chat_stream_input import AiChatStreamInput
+from lingya_agents_sdk.models.chat_stream_probe_input import ChatStreamProbeInput
+from lingya_agents_sdk.models.confirm_upload_input import ConfirmUploadInput
+from lingya_agents_sdk.models.conversation_activity_batch_input import ConversationActivityBatchInput
+from lingya_agents_sdk.models.conversation_read_receipt_input import ConversationReadReceiptInput
+from lingya_agents_sdk.models.conversation_share_input import ConversationShareInput
+from lingya_agents_sdk.models.conversation_status_input import ConversationStatusInput
+from lingya_agents_sdk.models.conversation_title_input import ConversationTitleInput
+from lingya_agents_sdk.models.create_file_input import CreateFileInput
+from lingya_agents_sdk.models.generate_pre_signed_url_input import GeneratePreSignedUrlInput
+from lingya_agents_sdk.models.plan_approval_input import PlanApprovalInput
+from lingya_agents_sdk.models.user_input_answer_input import UserInputAnswerInput
 
 BASE_PATH = "/api/agents/channel/openapi/v1/{channelId}/chat"
 DOMAIN_STATUSES = {400, 403, 404, 409, 422}
+T = TypeVar("T")
 
 
 @dataclass(frozen=True)
@@ -48,124 +59,238 @@ def test_all_46_real_endpoints() -> None:
     )
     with client.for_user(os.getenv("LINGYA_LIVE_EXTERNAL_USER_ID", "lingya-python-sdk-all-endpoints")) as user:
         coverage = Coverage(user)
-        first = coverage.model("POST", "", AiChatSubmission, {"query": "仅回复英文 OK"})
+        first = coverage.success("POST", "", lambda: user.chat.create_chat(AiChatInput(query="仅回复英文 OK")), 201)
         try:
-            coverage.success("GET", "/config")
-            events = list(user.stream_chat_events(first.conversation_id, first.message_id))
+            coverage.success("GET", "/config", user.configuration.get_agents_config)
+            events = list(
+                user.chat.stream_chat_events(first.conversation_id, AiChatStreamInput(messageId=first.message_id))
+            )
             assert events and any(getattr(event, "type", None) == "end" for event in events)
             coverage.record("POST", "/conversations/{conversationId}/stream", 200, "流式响应完成")
-            coverage.success("GET", f"/conversations/{first.conversation_id}/config")
-            coverage.success("GET", f"/conversations/{first.conversation_id}/context-usage")
-            coverage.success(
-                "GET", "/conversations", query=[QueryParameter("current", "0"), QueryParameter("size", "5")]
-            )
-            coverage.success("GET", "/conversations/active")
-            coverage.success("GET", "/conversations/unread")
-            coverage.success("POST", "/conversations/activity/query", {"conversationIds": [first.conversation_id]})
-            coverage.success(
-                "PUT", f"/conversations/{first.conversation_id}/read-receipt", {"messageId": first.message_id}
-            )
-            coverage.success("GET", "/conversations/stats")
-            coverage.success(
-                "PATCH", f"/conversations/{first.conversation_id}/title", {"title": "Python SDK 全接口测试"}
-            )
-            coverage.success("GET", f"/conversations/{first.conversation_id}/title")
-            coverage.success("GET", f"/conversations/{first.conversation_id}/messages")
-            coverage.success("GET", f"/conversations/{first.conversation_id}/messages/{first.message_id}")
             coverage.success(
                 "GET",
-                "/events",
-                query=[
-                    QueryParameter("conversationId", first.conversation_id),
-                    QueryParameter("messageId", first.message_id),
-                ],
+                f"/conversations/{first.conversation_id}/config",
+                lambda: user.configuration.get_conversation_config(first.conversation_id),
             )
             coverage.success(
-                "POST", "/events/batch", {"conversationId": first.conversation_id, "messageIds": [first.message_id]}
+                "GET",
+                f"/conversations/{first.conversation_id}/context-usage",
+                lambda: user.conversations.get_conversation_context_usage(first.conversation_id),
             )
-            second = coverage.model(
-                "POST", f"/conversations/{first.conversation_id}", AiChatSubmission, {"query": "再次仅回复英文 OK"}
+            coverage.success("GET", "/conversations", lambda: user.conversations.list_conversations(current=0, size=5))
+            coverage.success("GET", "/conversations/active", user.conversations.list_active_conversations)
+            coverage.success("GET", "/conversations/unread", user.conversations.list_unread_conversations)
+            coverage.success(
+                "POST",
+                "/conversations/activity/query",
+                lambda: user.conversations.query_conversation_activities(
+                    ConversationActivityBatchInput(conversationIds=[first.conversation_id])
+                ),
             )
-            list(user.stream_chat_events(second.conversation_id, second.message_id))
-            coverage.success("DELETE", f"/conversations/{first.conversation_id}/interrupt")
-            coverage.success("POST", f"/conversations/{first.conversation_id}/compact")
-            coverage.success("GET", f"/conversations/{first.conversation_id}/async-tasks")
-            coverage.domain("GET", f"/conversations/{first.conversation_id}/async-tasks/missing-async-task")
-            coverage.domain("DELETE", f"/conversations/{first.conversation_id}/messages/{first.message_id}/queue")
-            share = coverage.model(
-                "POST", f"/conversations/{first.conversation_id}/shares", ConversationShareCreated, {}
+            coverage.success(
+                "PUT",
+                f"/conversations/{first.conversation_id}/read-receipt",
+                lambda: user.conversations.mark_conversation_read(
+                    first.conversation_id, ConversationReadReceiptInput(messageId=first.message_id)
+                ),
             )
-            coverage.success("GET", f"/conversations/{first.conversation_id}/shares")
-            coverage.success("DELETE", f"/conversations/{first.conversation_id}/shares/{share.share_id}")
+            coverage.success("GET", "/conversations/stats", user.conversations.get_conversation_stats)
+            coverage.success(
+                "PATCH",
+                f"/conversations/{first.conversation_id}/title",
+                lambda: user.conversations.update_conversation_title(
+                    first.conversation_id, ConversationTitleInput(title="Python SDK 全接口测试")
+                ),
+            )
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}/title",
+                lambda: user.conversations.get_conversation_title(first.conversation_id),
+            )
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}/messages",
+                lambda: user.messages.list_conversation_messages(first.conversation_id),
+            )
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}/messages/{first.message_id}",
+                lambda: user.messages.get_conversation_message(first.conversation_id, first.message_id),
+            )
+            coverage.success(
+                "GET", "/events", lambda: user.events.get_chat_events(first.conversation_id, first.message_id)
+            )
+            coverage.success(
+                "POST",
+                "/events/batch",
+                lambda: user.events.get_chat_events_batch(
+                    AiChatEventsBatchInput(conversationId=first.conversation_id, messageIds=[first.message_id])
+                ),
+            )
+            second = coverage.success(
+                "POST",
+                f"/conversations/{first.conversation_id}",
+                lambda: user.chat.continue_chat(first.conversation_id, AiChatInput(query="再次仅回复英文 OK")),
+                201,
+            )
+            list(user.chat.stream_chat_events(second.conversation_id, AiChatStreamInput(messageId=second.message_id)))
+            coverage.success(
+                "DELETE",
+                f"/conversations/{first.conversation_id}/interrupt",
+                lambda: user.chat.interrupt_conversation(first.conversation_id),
+            )
+            coverage.success(
+                "POST",
+                f"/conversations/{first.conversation_id}/compact",
+                lambda: user.chat.compact_conversation(first.conversation_id),
+            )
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}/async-tasks",
+                lambda: user.messages.list_conversation_async_tasks(first.conversation_id),
+            )
+            coverage.domain(
+                "GET",
+                f"/conversations/{first.conversation_id}/async-tasks/missing-async-task",
+                lambda: user.messages.get_conversation_async_task(first.conversation_id, "missing-async-task"),
+            )
+            coverage.domain(
+                "DELETE",
+                f"/conversations/{first.conversation_id}/messages/{first.message_id}/queue",
+                lambda: user.messages.cancel_queued_message(first.conversation_id, first.message_id),
+            )
+            share = coverage.success(
+                "POST",
+                f"/conversations/{first.conversation_id}/shares",
+                lambda: user.conversations.create_conversation_share(first.conversation_id, ConversationShareInput()),
+                201,
+            )
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}/shares",
+                lambda: user.conversations.list_conversation_shares(first.conversation_id),
+            )
+            coverage.success(
+                "DELETE",
+                f"/conversations/{first.conversation_id}/shares/{share.share_id}",
+                lambda: user.conversations.revoke_conversation_share(first.conversation_id, share.share_id),
+            )
             coverage.success(
                 "POST",
                 "/plan/approve",
-                {"conversationId": first.conversation_id, "messageId": first.message_id, "approved": False},
+                lambda: user.interactions.approve_plan(
+                    PlanApprovalInput(conversationId=first.conversation_id, messageId=first.message_id, approved=False)
+                ),
             )
-            coverage.success("GET", "/plan/missing-plan/status")
+            coverage.success(
+                "GET", "/plan/missing-plan/status", lambda: user.interactions.get_plan_status("missing-plan")
+            )
             coverage.success(
                 "GET",
                 "/user-input/missing-question/status",
-                query=[
-                    QueryParameter("conversationId", first.conversation_id),
-                    QueryParameter("messageId", first.message_id),
-                ],
+                lambda: user.interactions.get_user_input_status(
+                    "missing-question", first.conversation_id, first.message_id
+                ),
             )
             coverage.success(
                 "POST",
                 "/user-input/answer",
-                {
-                    "conversationId": first.conversation_id,
-                    "messageId": first.message_id,
-                    "questionId": "missing-question",
-                    "selectedOptions": [],
-                    "customInput": "not pending",
-                },
+                lambda: user.interactions.answer_user_input(
+                    UserInputAnswerInput(
+                        conversationId=first.conversation_id,
+                        messageId=first.message_id,
+                        questionId="missing-question",
+                        selectedOptions=[],
+                        customInput="not pending",
+                    )
+                ),
             )
-            coverage.domain("GET", f"/conversations/{first.conversation_id}/sql-query-results/missing-result")
             coverage.domain(
-                "GET", f"/conversations/{first.conversation_id}/sql-query-results/missing-result/chart-data"
+                "GET",
+                f"/conversations/{first.conversation_id}/sql-query-results/missing-result",
+                lambda: user.sql.get_sql_query_result(first.conversation_id, "missing-result"),
+            )
+            coverage.domain(
+                "GET",
+                f"/conversations/{first.conversation_id}/sql-query-results/missing-result/chart-data",
+                lambda: user.sql.get_sql_query_chart_data(first.conversation_id, "missing-result"),
             )
             coverage.domain(
                 "GET",
                 f"/conversations/{first.conversation_id}/sql-query-results/missing-result/export",
-                query=[QueryParameter("format", "CSV")],
-                accept="text/csv",
+                lambda: user.sql.export_sql_query_result(first.conversation_id, "missing-result", "CSV"),
             )
             md5 = "17/2WOZXDPjhZzwMQCHrDg=="
-            coverage.success("GET", "/files/meta/contentMd5", query=[QueryParameter("contentMd5", md5)])
-            upload = coverage.model(
+            coverage.success("GET", "/files/meta/contentMd5", lambda: user.files.file_exists_by_content_md5(md5))
+            upload = coverage.success(
                 "POST",
                 "/files/pre-signed-url/write",
-                GeneratePreSignedUrlOutput,
-                {"fileName": "lingya-sdk-endpoint-test.txt", "module": "ai-chat-attachments", "contentMd5": md5},
+                lambda: user.files.create_pre_signed_upload(
+                    GeneratePreSignedUrlInput(
+                        fileName="lingya-sdk-endpoint-test.txt", module="ai-chat-attachments", contentMd5=md5
+                    )
+                ),
             )
-            coverage.domain("POST", "/files/pre-signed-url/confirm", {"fileUk": upload.file_uk, "contentMd5": md5})
+            file_uk = upload.file_uk
+            assert file_uk is not None
             coverage.domain(
-                "POST", "/files/contentMd5", {"fileName": "lingya-sdk-endpoint-test.txt", "contentMd5": md5}
+                "POST",
+                "/files/pre-signed-url/confirm",
+                lambda: user.files.confirm_pre_signed_upload(ConfirmUploadInput(fileUk=file_uk, contentMd5=md5)),
             )
-            coverage.domain("GET", f"/conversations/{first.conversation_id}/files/9223372036854775807/preview")
+            coverage.domain(
+                "POST",
+                "/files/contentMd5",
+                lambda: user.files.create_file_by_content_md5(
+                    CreateFileInput(fileName="lingya-sdk-endpoint-test.txt", contentMd5=md5)
+                ),
+            )
+            coverage.domain(
+                "GET",
+                f"/conversations/{first.conversation_id}/files/9223372036854775807/preview",
+                lambda: user.files.get_conversation_file_preview(first.conversation_id, 9223372036854775807),
+            )
             coverage.domain(
                 "GET",
                 f"/conversations/{first.conversation_id}/messages/{first.message_id}/plan-intermediate-files/9223372036854775807/preview",
+                lambda: user.files.get_plan_intermediate_file_preview(
+                    first.conversation_id, first.message_id, 9223372036854775807
+                ),
             )
-            coverage.success("POST", "/knowledge-bases/citations/metadata", [])
-            coverage.domain("GET", "/knowledge-bases/citations/CHUNK/9223372036854775807/metadata")
-            coverage.success("GET", f"/conversations/{first.conversation_id}/workspace/files")
+            coverage.success(
+                "POST", "/knowledge-bases/citations/metadata", lambda: user.knowledge.get_citation_metadata_batch([])
+            )
+            coverage.domain(
+                "GET",
+                "/knowledge-bases/citations/CHUNK/9223372036854775807/metadata",
+                lambda: user.knowledge.get_citation_metadata("CHUNK", 9223372036854775807),
+            )
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}/workspace/files",
+                lambda: user.workspace.list_workspace_artifacts(first.conversation_id),
+            )
             coverage.domain(
                 "GET",
                 f"/conversations/{first.conversation_id}/workspace/files/preview",
-                query=[QueryParameter("path", "missing-file.txt")],
+                lambda: user.workspace.get_workspace_file_preview(first.conversation_id, "missing-file.txt"),
             )
-            probe = user.raw_response(
-                "POST", "/stream-probe", json.dumps({"probeId": f"all-{uuid.uuid4()}"}), accept="text/event-stream"
+            assert len(list(user.chat.probe_event_stream(ChatStreamProbeInput(probeId=f"all-{uuid.uuid4()}")))) == 4
+            coverage.record("POST", "/stream-probe", 200, "流式响应完成")
+            coverage.success(
+                "PATCH",
+                f"/conversations/{first.conversation_id}/status",
+                lambda: user.conversations.update_conversation_status(
+                    first.conversation_id, ConversationStatusInput(status="ARCHIVED")
+                ),
             )
-            assert len(list(decode_sse_lines(probe.text.splitlines()))) == 4
-            coverage.record("POST", "/stream-probe", probe.status_code, "流式响应完成")
-            coverage.success("PATCH", f"/conversations/{first.conversation_id}/status", {"status": "ARCHIVED"})
         finally:
             try:
-                coverage.success("DELETE", f"/conversations/{first.conversation_id}")
+                coverage.success(
+                    "DELETE",
+                    f"/conversations/{first.conversation_id}",
+                    lambda: user.conversations.delete_conversation(first.conversation_id),
+                )
             finally:
                 coverage.write_report()
         assert len(coverage.seen) == 46
@@ -178,42 +303,23 @@ class Coverage:
         self.results: list[Result] = []
         self.seen: set[str] = set()
 
-    def success(
-        self, method: str, suffix: str, body: object | None = None, query: list[QueryParameter] | None = None
-    ) -> None:
-        response = self.user.raw_response(
-            method,
-            suffix,
-            json.dumps(body, separators=(",", ":"), ensure_ascii=False) if body is not None else None,
-            query or [],
-        )
-        self.record(method, suffix, response.status_code, "通过", response)
-
-    def model(self, method: str, suffix: str, model_type: type, body: object) -> object:
-        response = self.user.raw_response(method, suffix, json.dumps(body, separators=(",", ":"), ensure_ascii=False))
-        self.record(method, suffix, response.status_code, "通过", response)
-        return model_type.model_validate_json(response.content)
+    def success(self, method: str, suffix: str, action: Callable[[], T], status: int = 200) -> T:
+        value = action()
+        self.record(method, suffix, status, "通过")
+        return value
 
     def domain(
         self,
         method: str,
         suffix: str,
-        body: object | None = None,
-        query: list[QueryParameter] | None = None,
-        accept: str = "application/json",
+        action: Callable[[], object],
     ) -> None:
         with pytest.raises(LingyaApiError) as caught:
-            self.user.raw_response(
-                method,
-                suffix,
-                json.dumps(body, separators=(",", ":"), ensure_ascii=False) if body is not None else None,
-                query or [],
-                accept,
-            )
+            action()
         assert caught.value.status_code in DOMAIN_STATUSES
         self.record(method, suffix, caught.value.status_code, "环境能力受限，参数与错误响应已验证")
 
-    def record(self, method: str, suffix: str, status: int, outcome: str, response: object | None = None) -> None:
+    def record(self, method: str, suffix: str, status: int, outcome: str) -> None:
         path = BASE_PATH + canonical_suffix(suffix)
         key = f"{method} {path}"
         assert key not in self.seen

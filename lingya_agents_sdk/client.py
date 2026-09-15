@@ -14,11 +14,16 @@ from urllib.parse import quote, urlencode
 
 import httpx
 from pydantic import BaseModel
+from typing_extensions import deprecated
 
 from lingya_agents_sdk.events import AiChatBriefEvent, decode_ai_chat_brief_event
+from lingya_agents_sdk.models.ai_chat_stream_input import AiChatStreamInput
+from lingya_agents_sdk.models.chat_stream_probe_event import ChatStreamProbeEvent
+from lingya_agents_sdk.models.chat_stream_probe_input import ChatStreamProbeInput
 from lingya_agents_sdk.sse import decode_sse_lines
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
+RequestBody = BaseModel | Sequence[BaseModel] | str | None
 
 
 @dataclass(frozen=True)
@@ -88,6 +93,35 @@ class LingyaAgentsUserClient:
         self._encoded_user = base64.urlsafe_b64encode(user_bytes).rstrip(b"=").decode("ascii")
         self._root = f"{base_url}/api/agents/channel/openapi/v1/{quote(channel_id, safe='')}/chat"
         self._http = httpx.Client(timeout=httpx.Timeout(120.0), follow_redirects=False)
+        from lingya_agents_sdk.bound_api import (
+            LingyaChatApi,
+            LingyaConfigurationApi,
+            LingyaConversationsApi,
+            LingyaEventsApi,
+            LingyaFilesApi,
+            LingyaInteractionsApi,
+            LingyaKnowledgeApi,
+            LingyaMessagesApi,
+            LingyaSqlApi,
+            LingyaWorkspaceApi,
+        )
+
+        self.chat = LingyaChatApi(self)
+        self.configuration = LingyaConfigurationApi(self)
+        self.conversations = LingyaConversationsApi(self)
+        self.events = LingyaEventsApi(self)
+        self.files = LingyaFilesApi(self)
+        self.interactions = LingyaInteractionsApi(self)
+        self.knowledge = LingyaKnowledgeApi(self)
+        self.messages = LingyaMessagesApi(self)
+        self.sql = LingyaSqlApi(self)
+        self.workspace = LingyaWorkspaceApi(self)
+
+    @property
+    @deprecated("low_level is retained only for migration and will be removed in 1.0")
+    def low_level(self) -> LingyaAgentsUserClient:
+        """返回旧通用请求入口。 / Return the deprecated generic request surface."""
+        return self
 
     def close(self) -> None:
         """释放连接池。 / Close the underlying connection pool."""
@@ -99,12 +133,12 @@ class LingyaAgentsUserClient:
     def __exit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
         self.close()
 
-    def request_model(
+    def _request_model(
         self,
         method: str,
         suffix: str,
         response_type: type[ModelT],
-        body: BaseModel | str | None = None,
+        body: RequestBody = None,
         query: Sequence[QueryParameter] = (),
     ) -> ModelT:
         """调用 JSON 接口并解析为明确 Pydantic 模型。 / Parse JSON into one explicit model.
@@ -119,19 +153,48 @@ class LingyaAgentsUserClient:
         Raises:
             LingyaApiError: 服务端返回非 2xx 状态。
         """
-        return response_type.model_validate_json(self.raw_response(method, suffix, body, query).content)
+        return response_type.model_validate_json(self._raw_response(method, suffix, body, query).content)
 
+    @deprecated("Use the matching grouped facade operation; this helper will be removed in 1.0")
+    def request_model(
+        self,
+        method: str,
+        suffix: str,
+        response_type: type[ModelT],
+        body: RequestBody = None,
+        query: Sequence[QueryParameter] = (),
+    ) -> ModelT:
+        """调用兼容期的通用 JSON 入口。 / Call the deprecated generic JSON entry point."""
+        return self._request_model(method, suffix, response_type, body, query)
+
+    def _request_status(
+        self,
+        method: str,
+        suffix: str,
+        body: RequestBody = None,
+        query: Sequence[QueryParameter] = (),
+    ) -> int:
+        """调用无响应正文的端点并返回 2xx HTTP 状态码。 / Return the successful HTTP status."""
+        return self._raw_response(method, suffix, body, query).status_code
+
+    @deprecated("Use the matching grouped facade operation; this helper will be removed in 1.0")
     def request_status(
         self,
         method: str,
         suffix: str,
-        body: BaseModel | str | None = None,
+        body: RequestBody = None,
         query: Sequence[QueryParameter] = (),
     ) -> int:
-        """调用无响应正文的端点并返回 2xx HTTP 状态码。 / Return the successful HTTP status."""
-        return self.raw_response(method, suffix, body, query).status_code
+        """调用兼容期的通用状态入口。 / Call the deprecated generic status entry point."""
+        return self._request_status(method, suffix, body, query)
 
-    def request_bytes(self, method: str, suffix: str, query: Sequence[QueryParameter] = ()) -> bytes:
+    def _request_bytes(
+        self,
+        method: str,
+        suffix: str,
+        query: Sequence[QueryParameter] = (),
+        accept: str | None = None,
+    ) -> bytes:
         """下载未经文本转换的二进制响应。 / Download exact response bytes.
 
         Args:
@@ -139,13 +202,18 @@ class LingyaAgentsUserClient:
             suffix: 已编码的相对路径。
             query: 保留顺序的查询参数。
         """
-        return self.raw_response(method, suffix, query=query, accept="application/octet-stream").content
+        return self._raw_response(method, suffix, query=query, accept=accept or "application/octet-stream").content
 
-    def raw_response(
+    @deprecated("Use the matching grouped facade operation; this helper will be removed in 1.0")
+    def request_bytes(self, method: str, suffix: str, query: Sequence[QueryParameter] = ()) -> bytes:
+        """调用兼容期的通用下载入口。 / Call the deprecated generic download entry point."""
+        return self._request_bytes(method, suffix, query)
+
+    def _raw_response(
         self,
         method: str,
         suffix: str,
-        body: BaseModel | str | None = None,
+        body: RequestBody = None,
         query: Sequence[QueryParameter] = (),
         accept: str = "application/json",
     ) -> httpx.Response:
@@ -169,7 +237,24 @@ class LingyaAgentsUserClient:
             raise LingyaApiError(method, suffix, response.status_code, response.text)
         return response
 
-    def stream_chat_events(self, conversation_id: str, message_id: str) -> Iterator[AiChatBriefEvent]:
+    @deprecated("Use low_level or a grouped facade operation; this helper will be removed in 1.0")
+    def raw_response(
+        self,
+        method: str,
+        suffix: str,
+        body: RequestBody = None,
+        query: Sequence[QueryParameter] = (),
+        accept: str = "application/json",
+    ) -> httpx.Response:
+        """调用兼容期的原始响应入口。 / Call the deprecated raw-response entry point."""
+        return self._raw_response(method, suffix, body, query, accept)
+
+    def _stream_chat_events(
+        self,
+        suffix: str,
+        input: AiChatStreamInput,
+        request_id: str | None = None,
+    ) -> Iterator[AiChatBriefEvent]:
         """订阅对话 SSE，并返回强类型事件或 raw JSON fallback。 / Stream typed conversation events.
 
         Args:
@@ -181,8 +266,7 @@ class LingyaAgentsUserClient:
 
         迭代提前结束或抛出异常时始终关闭响应流。
         """
-        suffix = f"/conversations/{quote(conversation_id, safe='')}/stream"
-        request = self._signed_request("POST", suffix, f'{{"messageId":"{message_id}"}}', (), "text/event-stream")
+        request = self._signed_request("POST", suffix, input, (), "text/event-stream", request_id)
         response = self._http.send(request, stream=True)
         try:
             if not response.is_success:
@@ -193,15 +277,46 @@ class LingyaAgentsUserClient:
         finally:
             response.close()
 
+    @deprecated("Use chat.stream_chat_events(conversation_id, AiChatStreamInput(messageId=...))")
+    def stream_chat_events(self, conversation_id: str, message_id: str) -> Iterator[AiChatBriefEvent]:
+        """订阅兼容期的聊天事件入口。 / Use the deprecated chat-event entry point."""
+        suffix = f"/conversations/{quote(conversation_id, safe='')}/stream"
+        return self._stream_chat_events(suffix, AiChatStreamInput(messageId=message_id))
+
+    def _probe_event_stream(
+        self,
+        suffix: str,
+        input: ChatStreamProbeInput,
+        request_id: str | None = None,
+    ) -> Iterator[ChatStreamProbeEvent]:
+        """解码诊断 SSE。 / Decode the diagnostic SSE stream."""
+        request = self._signed_request("POST", suffix, input, (), "text/event-stream", request_id)
+        response = self._http.send(request, stream=True)
+        try:
+            if not response.is_success:
+                response.read()
+                raise LingyaApiError("POST", suffix, response.status_code, response.text)
+            for data in decode_sse_lines(response.iter_lines()):
+                yield ChatStreamProbeEvent.model_validate_json(data)
+        finally:
+            response.close()
+
     def _signed_request(
         self,
         method: str,
         suffix: str,
-        body: BaseModel | str | None,
+        body: RequestBody,
         query: Sequence[QueryParameter],
         accept: str,
+        request_id: str | None = None,
     ) -> httpx.Request:
-        body_text = body.model_dump_json(by_alias=True, exclude_none=True) if isinstance(body, BaseModel) else body
+        body_text: str | None
+        if isinstance(body, BaseModel):
+            body_text = body.model_dump_json(by_alias=True, exclude_none=True)
+        elif isinstance(body, str) or body is None:
+            body_text = body
+        else:
+            body_text = "[" + ",".join(item.model_dump_json(by_alias=True, exclude_none=True) for item in body) + "]"
         body_bytes = b"" if body_text is None else body_text.encode("utf-8")
         if len(body_bytes) > 2 * 1024 * 1024:
             raise ValueError("request body exceeds the 2 MiB signing limit")
@@ -235,6 +350,8 @@ class LingyaAgentsUserClient:
         }
         if content_type:
             headers["Content-Type"] = content_type
+        if request_id is not None:
+            headers["X-Request-ID"] = request_id
         return self._http.build_request(method, url, headers=headers, content=body_bytes)
 
 
