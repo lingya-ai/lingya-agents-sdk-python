@@ -23,7 +23,7 @@ jobs:
           repository: lingya-ai/lingya-agents-openapi
           ref: v0.1.4
           path: lingya-agents-openapi
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
           cache: pip
