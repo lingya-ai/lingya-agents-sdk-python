@@ -1,7 +1,7 @@
 """Channel-bound API groups generated from the Lingya Agents contract.
 
 The wire contract keeps channelId in every path. These public methods omit it
-because LingyaAgentsClient already binds the channel before a user is selected.
+because AgentsClient already binds the channel before a user is selected.
 """
 
 from __future__ import annotations
@@ -60,10 +60,10 @@ from lingya_agents_sdk.models.user_input_status import UserInputStatus
 from lingya_agents_sdk.models.workspace_artifact_list import WorkspaceArtifactList
 
 
-class LingyaConfigurationApi:
+class ConfigurationApi:
     """configuration 分组的 channel 绑定接口。 / Channel-bound configuration operations."""
 
-    def __init__(self, client: LingyaAgentsUserClient) -> None:
+    def __init__(self, client: AgentsUserClient) -> None:
         self._client = client
 
     def get_agents_config(
@@ -95,10 +95,10 @@ class LingyaConfigurationApi:
         return self._client._request_model("GET", suffix, ConversationConfig, None, ())
 
 
-class LingyaChatApi:
+class ChatApi:
     """chat 分组的 channel 绑定接口。 / Channel-bound chat operations."""
 
-    def __init__(self, client: LingyaAgentsUserClient) -> None:
+    def __init__(self, client: AgentsUserClient) -> None:
         self._client = client
 
     def create_chat(
@@ -205,10 +205,10 @@ class LingyaChatApi:
         return self._client._request_status("POST", suffix, None, query)
 
 
-class LingyaConversationsApi:
+class ConversationsApi:
     """conversations 分组的 channel 绑定接口。 / Channel-bound conversations operations."""
 
-    def __init__(self, client: LingyaAgentsUserClient) -> None:
+    def __init__(self, client: AgentsUserClient) -> None:
         self._client = client
 
     def delete_conversation(
@@ -453,10 +453,10 @@ class LingyaConversationsApi:
         return self._client._request_model("DELETE", suffix, ConversationShareRevoked, None, ())
 
 
-class LingyaSqlApi:
+class SqlApi:
     """sql 分组的 channel 绑定接口。 / Channel-bound sql operations."""
 
-    def __init__(self, client: LingyaAgentsUserClient) -> None:
+    def __init__(self, client: AgentsUserClient) -> None:
         self._client = client
 
     def get_sql_query_result(
@@ -528,10 +528,10 @@ class LingyaSqlApi:
         return self._client._request_bytes("GET", suffix, query, accept)
 
 
-class LingyaMessagesApi:
+class MessagesApi:
     """messages 分组的 channel 绑定接口。 / Channel-bound messages operations."""
 
-    def __init__(self, client: LingyaAgentsUserClient) -> None:
+    def __init__(self, client: AgentsUserClient) -> None:
         self._client = client
 
     def list_conversation_messages(
@@ -674,10 +674,10 @@ class LingyaMessagesApi:
         return self._client._request_model("DELETE", suffix, ConversationMessage, None, ())
 
 
-class LingyaEventsApi:
+class EventsApi:
     """events 分组的 channel 绑定接口。 / Channel-bound events operations."""
 
-    def __init__(self, client: LingyaAgentsUserClient) -> None:
+    def __init__(self, client: AgentsUserClient) -> None:
         self._client = client
 
     def get_chat_events(
@@ -716,10 +716,10 @@ class LingyaEventsApi:
         return self._client._request_model("POST", suffix, AiChatEventsBatch, input, ())
 
 
-class LingyaInteractionsApi:
+class InteractionsApi:
     """interactions 分组的 channel 绑定接口。 / Channel-bound interactions operations."""
 
-    def __init__(self, client: LingyaAgentsUserClient) -> None:
+    def __init__(self, client: AgentsUserClient) -> None:
         self._client = client
 
     def approve_plan(
@@ -790,10 +790,10 @@ class LingyaInteractionsApi:
         return self._client._request_model("POST", suffix, OperationResult, input, ())
 
 
-class LingyaFilesApi:
+class FilesApi:
     """files 分组的 channel 绑定接口。 / Channel-bound files operations."""
 
-    def __init__(self, client: LingyaAgentsUserClient) -> None:
+    def __init__(self, client: AgentsUserClient) -> None:
         self._client = client
 
     def create_pre_signed_upload(
@@ -895,10 +895,10 @@ class LingyaFilesApi:
         return self._client._request_model("GET", suffix, PreSignedReadUrl, None, ())
 
 
-class LingyaKnowledgeApi:
+class KnowledgeApi:
     """knowledge 分组的 channel 绑定接口。 / Channel-bound knowledge operations."""
 
-    def __init__(self, client: LingyaAgentsUserClient) -> None:
+    def __init__(self, client: AgentsUserClient) -> None:
         self._client = client
 
     def get_citation_metadata_batch(
@@ -934,10 +934,10 @@ class LingyaKnowledgeApi:
         return self._client._request_model("GET", suffix, CitationMetadata, None, ())
 
 
-class LingyaWorkspaceApi:
+class WorkspaceApi:
     """workspace 分组的 channel 绑定接口。 / Channel-bound workspace operations."""
 
-    def __init__(self, client: LingyaAgentsUserClient) -> None:
+    def __init__(self, client: AgentsUserClient) -> None:
         self._client = client
 
     def list_workspace_artifacts(
@@ -1010,4 +1010,15 @@ def _query_text(value: str | int | bool) -> str:
 
 
 # Imported last to avoid a runtime cycle while preserving precise annotations.
-from lingya_agents_sdk.client import LingyaAgentsUserClient, QueryParameter  # noqa: E402
+from lingya_agents_sdk.client import AgentsUserClient, QueryParameter  # noqa: E402
+
+LingyaConfigurationApi = ConfigurationApi
+LingyaChatApi = ChatApi
+LingyaConversationsApi = ConversationsApi
+LingyaSqlApi = SqlApi
+LingyaMessagesApi = MessagesApi
+LingyaEventsApi = EventsApi
+LingyaInteractionsApi = InteractionsApi
+LingyaFilesApi = FilesApi
+LingyaKnowledgeApi = KnowledgeApi
+LingyaWorkspaceApi = WorkspaceApi

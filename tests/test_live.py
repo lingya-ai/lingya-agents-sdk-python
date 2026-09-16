@@ -13,9 +13,9 @@ from typing import TypeVar
 import pytest
 
 from lingya_agents_sdk.client import (
-    LingyaAgentsClient,
-    LingyaAgentsUserClient,
-    LingyaApiError,
+    AgentsClient,
+    AgentsUserClient,
+    ApiError,
     OpenApiCredentials,
 )
 from lingya_agents_sdk.models.ai_chat_events_batch_input import AiChatEventsBatchInput
@@ -52,7 +52,7 @@ def test_all_46_real_endpoints() -> None:
     names = ("OPENAPI_AK", "OPENAPI_SK", "LINGYA_LIVE_BASE_URL", "LINGYA_LIVE_CHANNEL_ID")
     if any(not os.getenv(name) for name in names):
         pytest.skip("live environment variables are required")
-    client = LingyaAgentsClient(
+    client = AgentsClient(
         os.environ["LINGYA_LIVE_BASE_URL"],
         os.environ["LINGYA_LIVE_CHANNEL_ID"],
         OpenApiCredentials(os.environ["OPENAPI_AK"], os.environ["OPENAPI_SK"]),
@@ -298,7 +298,7 @@ def test_all_46_real_endpoints() -> None:
 
 
 class Coverage:
-    def __init__(self, user: LingyaAgentsUserClient) -> None:
+    def __init__(self, user: AgentsUserClient) -> None:
         self.user = user
         self.results: list[Result] = []
         self.seen: set[str] = set()
@@ -314,7 +314,7 @@ class Coverage:
         suffix: str,
         action: Callable[[], object],
     ) -> None:
-        with pytest.raises(LingyaApiError) as caught:
+        with pytest.raises(ApiError) as caught:
             action()
         assert caught.value.status_code in DOMAIN_STATUSES
         self.record(method, suffix, caught.value.status_code, "环境能力受限，参数与错误响应已验证")

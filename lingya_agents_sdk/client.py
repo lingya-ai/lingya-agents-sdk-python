@@ -45,7 +45,7 @@ class QueryParameter:
     value: str
 
 
-class LingyaApiError(RuntimeError):
+class ApiError(RuntimeError):
     """不包含凭证的 HTTP 错误。 / HTTP failure that never contains credentials."""
 
     def __init__(self, method: str, path: str, status_code: int, response_body: str) -> None:
@@ -56,7 +56,7 @@ class LingyaApiError(RuntimeError):
         self.response_body = response_body
 
 
-class LingyaAgentsClient:
+class AgentsClient:
     """Lingya Agents SDK 入口，仅用于可信服务端。 / SDK entry point for trusted servers only.
 
     客户端保存 channel 范围的凭证，但只有 [for_user()] 返回的用户客户端可以发起请求。
@@ -69,7 +69,7 @@ class LingyaAgentsClient:
         self.channel_id = channel_id
         self._credentials = credentials
 
-    def for_user(self, external_user_id: str) -> LingyaAgentsUserClient:
+    def for_user(self, external_user_id: str) -> AgentsUserClient:
         """绑定外部用户并为其后续请求独立签名。 / Bind one external user for signed calls.
 
         Args:
@@ -78,10 +78,10 @@ class LingyaAgentsClient:
         Returns:
             注入外部用户身份的同步客户端。
         """
-        return LingyaAgentsUserClient(self._base_url, self.channel_id, self._credentials, external_user_id)
+        return AgentsUserClient(self._base_url, self.channel_id, self._credentials, external_user_id)
 
 
-class LingyaAgentsUserClient:
+class AgentsUserClient:
     """已绑定外部用户的同步客户端。 / Synchronous client bound to one external user."""
 
     def __init__(self, base_url: str, channel_id: str, credentials: OpenApiCredentials, external_user_id: str) -> None:
@@ -94,32 +94,32 @@ class LingyaAgentsUserClient:
         self._root = f"{base_url}/api/agents/channel/openapi/v1/{quote(channel_id, safe='')}/chat"
         self._http = httpx.Client(timeout=httpx.Timeout(120.0), follow_redirects=False)
         from lingya_agents_sdk.bound_api import (
-            LingyaChatApi,
-            LingyaConfigurationApi,
-            LingyaConversationsApi,
-            LingyaEventsApi,
-            LingyaFilesApi,
-            LingyaInteractionsApi,
-            LingyaKnowledgeApi,
-            LingyaMessagesApi,
-            LingyaSqlApi,
-            LingyaWorkspaceApi,
+            ChatApi,
+            ConfigurationApi,
+            ConversationsApi,
+            EventsApi,
+            FilesApi,
+            InteractionsApi,
+            KnowledgeApi,
+            MessagesApi,
+            SqlApi,
+            WorkspaceApi,
         )
 
-        self.chat = LingyaChatApi(self)
-        self.configuration = LingyaConfigurationApi(self)
-        self.conversations = LingyaConversationsApi(self)
-        self.events = LingyaEventsApi(self)
-        self.files = LingyaFilesApi(self)
-        self.interactions = LingyaInteractionsApi(self)
-        self.knowledge = LingyaKnowledgeApi(self)
-        self.messages = LingyaMessagesApi(self)
-        self.sql = LingyaSqlApi(self)
-        self.workspace = LingyaWorkspaceApi(self)
+        self.chat = ChatApi(self)
+        self.configuration = ConfigurationApi(self)
+        self.conversations = ConversationsApi(self)
+        self.events = EventsApi(self)
+        self.files = FilesApi(self)
+        self.interactions = InteractionsApi(self)
+        self.knowledge = KnowledgeApi(self)
+        self.messages = MessagesApi(self)
+        self.sql = SqlApi(self)
+        self.workspace = WorkspaceApi(self)
 
     @property
     @deprecated("low_level is retained only for migration and will be removed in 1.0")
-    def low_level(self) -> LingyaAgentsUserClient:
+    def low_level(self) -> AgentsUserClient:
         """返回旧通用请求入口。 / Return the deprecated generic request surface."""
         return self
 
@@ -127,7 +127,7 @@ class LingyaAgentsUserClient:
         """释放连接池。 / Close the underlying connection pool."""
         self._http.close()
 
-    def __enter__(self) -> LingyaAgentsUserClient:
+    def __enter__(self) -> AgentsUserClient:
         return self
 
     def __exit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
@@ -151,7 +151,7 @@ class LingyaAgentsUserClient:
             query: 保留顺序并允许重复名称的查询参数。
 
         Raises:
-            LingyaApiError: 服务端返回非 2xx 状态。
+            ApiError: 服务端返回非 2xx 状态。
         """
         return response_type.model_validate_json(self._raw_response(method, suffix, body, query).content)
 
@@ -229,12 +229,12 @@ class LingyaAgentsUserClient:
             accept: 精确 Accept 值，例如 `application/json`、`text/event-stream` 或 `text/csv`。
 
         Raises:
-            LingyaApiError: 服务端返回非 2xx 状态，异常不包含 secret。
+            ApiError: 服务端返回非 2xx 状态，异常不包含 secret。
         """
         request = self._signed_request(method, suffix, body, query, accept)
         response = self._http.send(request)
         if not response.is_success:
-            raise LingyaApiError(method, suffix, response.status_code, response.text)
+            raise ApiError(method, suffix, response.status_code, response.text)
         return response
 
     @deprecated("Use low_level or a grouped facade operation; this helper will be removed in 1.0")
@@ -271,7 +271,7 @@ class LingyaAgentsUserClient:
         try:
             if not response.is_success:
                 response.read()
-                raise LingyaApiError("POST", suffix, response.status_code, response.text)
+                raise ApiError("POST", suffix, response.status_code, response.text)
             for data in decode_sse_lines(response.iter_lines()):
                 yield decode_ai_chat_brief_event(data)
         finally:
@@ -295,7 +295,7 @@ class LingyaAgentsUserClient:
         try:
             if not response.is_success:
                 response.read()
-                raise LingyaApiError("POST", suffix, response.status_code, response.text)
+                raise ApiError("POST", suffix, response.status_code, response.text)
             for data in decode_sse_lines(response.iter_lines()):
                 yield ChatStreamProbeEvent.model_validate_json(data)
         finally:
@@ -366,3 +366,9 @@ def sign_canonical(secret_key: str, canonical: str) -> str:
         小写十六进制签名。
     """
     return hmac.new(secret_key.encode("utf-8"), canonical.encode("utf-8"), hashlib.sha256).hexdigest()
+
+
+# Compatibility aliases for 0.3.x callers; new code should use the unprefixed names.
+LingyaAgentsClient = AgentsClient
+LingyaAgentsUserClient = AgentsUserClient
+LingyaApiError = ApiError

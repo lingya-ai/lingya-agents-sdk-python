@@ -25,7 +25,7 @@ def snake_case(value: str) -> str:
 
 def class_name(group: str) -> str:
     """Return the stable public class name for one OpenAPI tag."""
-    return f"Lingya{group.title()}Api"
+    return f"{group.title()}Api"
 
 
 def python_type(schema: dict[str, object], required: bool) -> str:
@@ -81,7 +81,7 @@ lines = [
     '"""Channel-bound API groups generated from the Lingya Agents contract.',
     "",
     "The wire contract keeps channelId in every path. These public methods omit it",
-    "because LingyaAgentsClient already binds the channel before a user is selected.",
+    "because AgentsClient already binds the channel before a user is selected.",
     '"""',
     "",
     "from __future__ import annotations",
@@ -102,7 +102,7 @@ for group in groups:
             f"class {class_name(group)}:",
             f'    """{group} 分组的 channel 绑定接口。 / Channel-bound {group} operations."""',
             "",
-            "    def __init__(self, client: LingyaAgentsUserClient) -> None:",
+            "    def __init__(self, client: AgentsUserClient) -> None:",
             "        self._client = client",
             "",
         ]
@@ -216,10 +216,14 @@ lines.extend(
         "",
         "",
         "# Imported last to avoid a runtime cycle while preserving precise annotations.",
-        "from lingya_agents_sdk.client import LingyaAgentsUserClient, QueryParameter  # noqa: E402",
+        "from lingya_agents_sdk.client import AgentsUserClient, QueryParameter  # noqa: E402",
         "",
     ]
 )
+
+for group in groups:
+    lines.append(f"Lingya{group.title()}Api = {class_name(group)}")
+lines.append("")
 
 OUTPUT.write_text("\n".join(lines), encoding="utf-8")
 subprocess.run([sys.executable, "-m", "ruff", "format", str(OUTPUT)], check=True)

@@ -1,29 +1,56 @@
 """Lingya Agents Python SDK public API."""
 
 from lingya_agents_sdk.bound_api import (
-    LingyaChatApi,
-    LingyaConfigurationApi,
-    LingyaConversationsApi,
-    LingyaEventsApi,
-    LingyaFilesApi,
-    LingyaInteractionsApi,
-    LingyaKnowledgeApi,
-    LingyaMessagesApi,
-    LingyaSqlApi,
-    LingyaWorkspaceApi,
+    ChatApi,
+    ConfigurationApi,
+    ConversationsApi,
+    EventsApi,
+    FilesApi,
+    InteractionsApi,
+    KnowledgeApi,
+    MessagesApi,
+    SqlApi,
+    WorkspaceApi,
 )
 from lingya_agents_sdk.client import (
-    LingyaAgentsClient,
-    LingyaAgentsUserClient,
-    LingyaApiError,
+    AgentsClient,
+    AgentsUserClient,
+    ApiError,
     OpenApiCredentials,
     QueryParameter,
 )
 from lingya_agents_sdk.events import AiChatBriefEvent, ToolExtension, decode_ai_chat_brief_event, decode_tool_extension
 
-__version__ = "0.3.0"
+LingyaAgentsClient = AgentsClient
+LingyaAgentsUserClient = AgentsUserClient
+LingyaApiError = ApiError
+LingyaChatApi = ChatApi
+LingyaConfigurationApi = ConfigurationApi
+LingyaConversationsApi = ConversationsApi
+LingyaEventsApi = EventsApi
+LingyaFilesApi = FilesApi
+LingyaInteractionsApi = InteractionsApi
+LingyaKnowledgeApi = KnowledgeApi
+LingyaMessagesApi = MessagesApi
+LingyaSqlApi = SqlApi
+LingyaWorkspaceApi = WorkspaceApi
+
+__version__ = "0.4.0"
 __all__ = [
+    "AgentsClient",
+    "AgentsUserClient",
     "AiChatBriefEvent",
+    "ApiError",
+    "ChatApi",
+    "ConfigurationApi",
+    "ConversationsApi",
+    "EventsApi",
+    "FilesApi",
+    "InteractionsApi",
+    "KnowledgeApi",
+    "MessagesApi",
+    "SqlApi",
+    "WorkspaceApi",
     "LingyaAgentsClient",
     "LingyaAgentsUserClient",
     "LingyaChatApi",

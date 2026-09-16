@@ -1,75 +1,72 @@
 # 灵涯 Agents Python SDK
 Lingya Agents SDK for Python
 
-这是灵涯 Agents OpenAPI 的服务端 Python SDK；模型来自固定契约提交，覆盖全部 46 个公开路由，并内置 `OPENAPI-HMAC-SHA256-V1` 签名与 SSE 解码。
-This server-side Python SDK for Lingya Agents OpenAPI pins its contract revision, covers all 46 public routes, and includes `OPENAPI-HMAC-SHA256-V1` signing and SSE decoding.
-
-仅适用于可信服务端；不要把 secret 放入浏览器、桌面端、移动端、日志或异常。
-Use this SDK only on trusted servers. Never put the secret in browsers, desktop or mobile applications, logs, or exceptions.
+用于在 Python 可信服务端调用灵涯 Agents OpenAPI。
+Use this SDK to call Lingya Agents OpenAPI from a trusted Python server.
 
 ## 安装
 Installation
 
 ```bash
-pip install lingya-agents-sdk
+pip install lingya-agents-sdk==0.4.0
 ```
 
-国内网络可使用清华镜像。
-For networks in mainland China, use the Tsinghua mirror.
-
-```bash
-pip install lingya-agents-sdk -i https://pypi.tuna.tsinghua.edu.cn/simple
-```
-
-## 调用与 SSE
-Calls and SSE
+## 快速开始
+Quick start
 
 ```python
-from lingya_agents_sdk import LingyaAgentsClient, OpenApiCredentials
+import os
+
+from lingya_agents_sdk import AgentsClient, OpenApiCredentials
 from lingya_agents_sdk.models.ai_chat_input import AiChatInput
+
+client = AgentsClient(
+    "https://lingtong.lingya.tech/",
+    os.environ["OPENAPI_CHANNEL_ID"],
+    OpenApiCredentials(
+        os.environ["OPENAPI_AK"],
+        os.environ["OPENAPI_SK"],
+    ),
+)
+
+with client.for_user("external-user-id") as user:
+    submission = user.chat.create_chat(AiChatInput(query="你好"))
+```
+
+`channel_id` 只在创建 `AgentsClient` 时提供，业务方法不再接收它。
+Provide `channel_id` only when creating `AgentsClient`; business methods do not accept it.
+
+## SSE 事件流
+SSE event stream
+
+```python
 from lingya_agents_sdk.models.ai_chat_stream_input import AiChatStreamInput
 
-client = LingyaAgentsClient(
-    "https://lingtong.lingya.tech",
-    "channel-id",
-    OpenApiCredentials("access-key", "secret-key"),
-)
-with client.for_user("your-system-user-id") as user:
-    submission = user.chat.create_chat(AiChatInput(query="你好"))
+with client.for_user("external-user-id") as user:
     for event in user.chat.stream_chat_events(
         submission.conversation_id,
-        AiChatStreamInput(messageId=submission.message_id),
+        AiChatStreamInput(message_id=submission.message_id),
     ):
         print(event.type)
 ```
 
-十个业务分组覆盖全部 46 个接口；`channel_id` 只在根客户端构造时提供，`low_level` 与通用请求方法仅作为迁移入口保留到 1.0。
-Ten business groups cover all 46 operations; provide `channel_id` only to the root client, while `low_level` and generic request methods remain migration-only APIs until 1.0.
+## API 分组
+API groups
 
-15 种已知事件和 12 种已知工具扩展均映射为明确 DTO；服务端新增判别值时，以 `raw_json` 保留原始对象。
-All 15 known events and 12 known tool extensions map to explicit DTOs. When the server adds a discriminator value, the original object is retained in `raw_json`.
+可用分组为 `chat`、`configuration`、`conversations`、`events`、`files`、`interactions`、`knowledge`、`messages`、`sql` 和 `workspace`。
+Available groups are `chat`, `configuration`, `conversations`, `events`, `files`, `interactions`, `knowledge`, `messages`, `sql`, and `workspace`.
 
-## 开发验证
-Development verification
+## 错误处理
+Error handling
 
-```bash
-python -m venv .venv
-.venv/Scripts/pip install -e ".[test]" -i https://pypi.tuna.tsinghua.edu.cn/simple
-.venv/Scripts/python -m ruff check lingya_agents_sdk/client.py lingya_agents_sdk/bound_api.py lingya_agents_sdk/events.py lingya_agents_sdk/sse.py tests scripts
-.venv/Scripts/python -m mypy
-.venv/Scripts/python scripts/audit_models.py
-.venv/Scripts/python -m pytest -m "not live"
-.venv/Scripts/python -m build --no-isolation
+```python
+from lingya_agents_sdk import ApiError
+
+try:
+    user.conversations.get_conversation_title("conversation-id")
+except ApiError as error:
+    print(error.status_code, error.response_body)
 ```
 
-CI 使用 `requirements-ci.txt` 固定完整依赖解析结果，发布契约中的依赖范围仍以 `pyproject.toml` 为准。
-CI pins the complete dependency resolution in `requirements-ci.txt`, while `pyproject.toml` remains the published dependency contract.
-
-真实测试还需设置 `OPENAPI_AK`、`OPENAPI_SK`、`LINGYA_LIVE_BASE_URL` 与 `LINGYA_LIVE_CHANNEL_ID`，然后运行 `pytest -m live`。
-Live tests also require `OPENAPI_AK`, `OPENAPI_SK`, `LINGYA_LIVE_BASE_URL`, and `LINGYA_LIVE_CHANNEL_ID`; run them with `pytest -m live`.
-
-测试会逐一核对契约中的 46 个 method/path，并在 `build/reports/live-api/` 生成脱敏报告。
-The tests verify every one of the 46 contract method/path pairs and write a redacted report to `build/reports/live-api/`.
-
-契约来源为 `lingya-ai/lingya-agents-openapi@v0.1.3`，OpenAPI Generator 版本为 `7.25.0`。
-The contract source is `lingya-ai/lingya-agents-openapi@v0.1.3`, and the OpenAPI Generator version is `7.25.0`.
+请只在可信服务端保存 `secret_key`，不要将其放入浏览器、移动端、桌面端或日志。
+Keep `secret_key` on trusted servers only; never put it in browsers, mobile apps, desktop apps, or logs.

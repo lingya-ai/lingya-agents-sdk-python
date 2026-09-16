@@ -9,7 +9,7 @@ from pathlib import Path
 
 import httpx
 
-from lingya_agents_sdk import LingyaAgentsClient, OpenApiCredentials, bound_api
+from lingya_agents_sdk import AgentsClient, OpenApiCredentials, bound_api
 from lingya_agents_sdk.models.ai_chat_input import AiChatInput
 
 
@@ -44,7 +44,7 @@ def test_root_channel_is_encoded_and_injected_once() -> None:
             },
         )
 
-    user = LingyaAgentsClient(
+    user = AgentsClient(
         "https://example.test",
         "channel/一",
         OpenApiCredentials("abcdefghijklmnopqrstuvwxyzABCDEF", "test-secret"),
