@@ -61,7 +61,7 @@ pytest==9.1.1
     # via lingya-agents-sdk (pyproject.toml)
 python-dateutil==2.9.0.post0
     # via lingya-agents-sdk (pyproject.toml)
-ruff==0.16.7
+ruff==0.16.8
     # via lingya-agents-sdk (pyproject.toml)
 six==1.17.0
     # via python-dateutil
