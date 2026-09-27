@@ -16,31 +16,22 @@ import pprint
 import re  # noqa: F401
 from typing import Any, ClassVar
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic_core import to_jsonable_python
 from typing_extensions import Self
 
-from lingya_agents_sdk.models.media_attachment import MediaAttachment
+from lingya_agents_sdk.models.page_info import PageInfo
+from lingya_agents_sdk.models.subagent_task import SubagentTask
 
 
-class AiChatUserQueryBriefEvent(BaseModel):
+class SubagentTaskPage(BaseModel):
     """
-    AiChatUserQueryBriefEvent 的公开协议结构。 / Public contract for ai chat user query brief event.
+    SubagentTaskPage 的公开协议结构。 / Public contract for subagent task page.
     """  # noqa: E501
 
-    type: StrictStr = Field(description="类型判别值 / type discriminator。")
-    query: StrictStr = Field(description="用户问题 / user query。")
-    attachments: list[MediaAttachment] | None = Field(
-        default=None, description="字段 attachments / attachments field。"
-    )
-    __properties: ClassVar[list[str]] = ["type", "query", "attachments"]
-
-    @field_validator("type")
-    def type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(["user-query"]):
-            raise ValueError("must be one of enum values ('user-query')")
-        return value
+    records: list[SubagentTask] = Field(description="记录列表 / records。")
+    page: PageInfo = Field(description="分页信息 / page metadata。")
+    __properties: ClassVar[list[str]] = ["records", "page"]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -59,7 +50,7 @@ class AiChatUserQueryBriefEvent(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self | None:
-        """Create an instance of AiChatUserQueryBriefEvent from a JSON string"""
+        """Create an instance of SubagentTaskPage from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> dict[str, Any]:
@@ -79,22 +70,20 @@ class AiChatUserQueryBriefEvent(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in attachments (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in records (list)
         _items = []
-        if self.attachments:
-            for _item_attachments in self.attachments:
-                _items.append(_item_attachments.to_dict() if _item_attachments is not None else None)
-            _dict["attachments"] = _items
-        # set to None if attachments (nullable) is None
-        # and model_fields_set contains the field
-        if self.attachments is None and "attachments" in self.model_fields_set:
-            _dict["attachments"] = None
-
+        if self.records:
+            for _item_records in self.records:
+                _items.append(_item_records.to_dict() if _item_records is not None else None)
+            _dict["records"] = _items
+        # override the default output from pydantic by calling `to_dict()` of page
+        if self.page:
+            _dict["page"] = self.page.to_dict()
         return _dict
 
     @classmethod
     def from_dict(cls, obj: dict[str, Any] | None) -> Self | None:
-        """Create an instance of AiChatUserQueryBriefEvent from a dict"""
+        """Create an instance of SubagentTaskPage from a dict"""
         if obj is None:
             return None
 
@@ -103,11 +92,10 @@ class AiChatUserQueryBriefEvent(BaseModel):
 
         _obj = cls.model_validate(
             {
-                "type": obj.get("type"),
-                "query": obj.get("query"),
-                "attachments": [MediaAttachment.from_dict(_item) for _item in obj["attachments"]]
-                if obj.get("attachments") is not None
+                "records": [SubagentTask.from_dict(_item) for _item in obj["records"]]
+                if obj.get("records") is not None
                 else None,
+                "page": PageInfo.from_dict(obj["page"]) if obj.get("page") is not None else None,
             }
         )
         return _obj

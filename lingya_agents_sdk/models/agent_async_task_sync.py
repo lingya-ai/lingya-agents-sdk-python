@@ -16,31 +16,37 @@ import pprint
 import re  # noqa: F401
 from typing import Any, ClassVar
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr
 from pydantic_core import to_jsonable_python
 from typing_extensions import Self
 
-from lingya_agents_sdk.models.media_attachment import MediaAttachment
+from lingya_agents_sdk.models.async_task import AsyncTask
+from lingya_agents_sdk.models.conversation_message import ConversationMessage
 
 
-class AiChatUserQueryBriefEvent(BaseModel):
+class AgentAsyncTaskSync(BaseModel):
     """
-    AiChatUserQueryBriefEvent 的公开协议结构。 / Public contract for ai chat user query brief event.
+    AgentAsyncTaskSync 的公开协议结构。 / Public contract for agent async task sync.
     """  # noqa: E501
 
-    type: StrictStr = Field(description="类型判别值 / type discriminator。")
-    query: StrictStr = Field(description="用户问题 / user query。")
-    attachments: list[MediaAttachment] | None = Field(
-        default=None, description="字段 attachments / attachments field。"
+    active_tasks: list[AsyncTask] = Field(description="字段 activeTasks / active tasks field。", alias="activeTasks")
+    notification_messages: list[ConversationMessage] = Field(
+        description="字段 notificationMessages / notification messages field。", alias="notificationMessages"
     )
-    __properties: ClassVar[list[str]] = ["type", "query", "attachments"]
-
-    @field_validator("type")
-    def type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(["user-query"]):
-            raise ValueError("must be one of enum values ('user-query')")
-        return value
+    next_message_id: StrictStr | None = Field(
+        description="字段 nextMessageId / next message id field。", alias="nextMessageId"
+    )
+    has_more: StrictBool = Field(description="字段 hasMore / has more field。", alias="hasMore")
+    polling_required: StrictBool = Field(
+        description="字段 pollingRequired / polling required field。", alias="pollingRequired"
+    )
+    __properties: ClassVar[list[str]] = [
+        "activeTasks",
+        "notificationMessages",
+        "nextMessageId",
+        "hasMore",
+        "pollingRequired",
+    ]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -59,7 +65,7 @@ class AiChatUserQueryBriefEvent(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self | None:
-        """Create an instance of AiChatUserQueryBriefEvent from a JSON string"""
+        """Create an instance of AgentAsyncTaskSync from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> dict[str, Any]:
@@ -79,22 +85,30 @@ class AiChatUserQueryBriefEvent(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in attachments (list)
+        # override the default output from pydantic by calling `to_dict()` of each item in active_tasks (list)
         _items = []
-        if self.attachments:
-            for _item_attachments in self.attachments:
-                _items.append(_item_attachments.to_dict() if _item_attachments is not None else None)
-            _dict["attachments"] = _items
-        # set to None if attachments (nullable) is None
+        if self.active_tasks:
+            for _item_active_tasks in self.active_tasks:
+                _items.append(_item_active_tasks.to_dict() if _item_active_tasks is not None else None)
+            _dict["activeTasks"] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in notification_messages (list)
+        _items = []
+        if self.notification_messages:
+            for _item_notification_messages in self.notification_messages:
+                _items.append(
+                    _item_notification_messages.to_dict() if _item_notification_messages is not None else None
+                )
+            _dict["notificationMessages"] = _items
+        # set to None if next_message_id (nullable) is None
         # and model_fields_set contains the field
-        if self.attachments is None and "attachments" in self.model_fields_set:
-            _dict["attachments"] = None
+        if self.next_message_id is None and "next_message_id" in self.model_fields_set:
+            _dict["nextMessageId"] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: dict[str, Any] | None) -> Self | None:
-        """Create an instance of AiChatUserQueryBriefEvent from a dict"""
+        """Create an instance of AgentAsyncTaskSync from a dict"""
         if obj is None:
             return None
 
@@ -103,11 +117,15 @@ class AiChatUserQueryBriefEvent(BaseModel):
 
         _obj = cls.model_validate(
             {
-                "type": obj.get("type"),
-                "query": obj.get("query"),
-                "attachments": [MediaAttachment.from_dict(_item) for _item in obj["attachments"]]
-                if obj.get("attachments") is not None
+                "activeTasks": [AsyncTask.from_dict(_item) for _item in obj["activeTasks"]]
+                if obj.get("activeTasks") is not None
                 else None,
+                "notificationMessages": [ConversationMessage.from_dict(_item) for _item in obj["notificationMessages"]]
+                if obj.get("notificationMessages") is not None
+                else None,
+                "nextMessageId": obj.get("nextMessageId"),
+                "hasMore": obj.get("hasMore"),
+                "pollingRequired": obj.get("pollingRequired"),
             }
         )
         return _obj

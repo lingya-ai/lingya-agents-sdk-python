@@ -11,6 +11,7 @@ from typing import Literal
 from urllib.parse import quote
 
 from lingya_agents_sdk.events import AiChatBriefEvent
+from lingya_agents_sdk.models.agent_async_task_sync import AgentAsyncTaskSync
 from lingya_agents_sdk.models.agent_file import AgentFile
 from lingya_agents_sdk.models.agents_config import AgentsConfig
 from lingya_agents_sdk.models.ai_chat_brief_event_list import AiChatBriefEventList
@@ -55,6 +56,10 @@ from lingya_agents_sdk.models.pre_signed_read_url import PreSignedReadUrl
 from lingya_agents_sdk.models.returned_reference import ReturnedReference
 from lingya_agents_sdk.models.sql_chart_dataset import SqlChartDataset
 from lingya_agents_sdk.models.sql_query_result_page import SqlQueryResultPage
+from lingya_agents_sdk.models.subagent_task import SubagentTask
+from lingya_agents_sdk.models.subagent_task_page import SubagentTaskPage
+from lingya_agents_sdk.models.subagent_task_result import SubagentTaskResult
+from lingya_agents_sdk.models.subagent_task_sync import SubagentTaskSync
 from lingya_agents_sdk.models.user_input_answer_input import UserInputAnswerInput
 from lingya_agents_sdk.models.user_input_status import UserInputStatus
 from lingya_agents_sdk.models.workspace_artifact_list import WorkspaceArtifactList
@@ -635,6 +640,30 @@ class MessagesApi:
             query.extend(QueryParameter("status", str(value)) for value in status)
         return self._client._request_model("GET", suffix, AsyncTaskPage, None, query)
 
+    def sync_conversation_async_tasks(
+        self,
+        conversation_id: str,
+        after_message_id: str | None = None,
+        size: int | None = 50,
+    ) -> AgentAsyncTaskSync:
+        """增量同步异步任务 / Sync asynchronous task updates
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            after_message_id: 通知消息同步游标。 / Notification-message sync cursor.
+            size: 单页记录数。 / Number of records per page.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/async-tasks/sync"
+        query: list[QueryParameter] = []
+        if after_message_id is not None:
+            query.append(QueryParameter("afterMessageId", _query_text(after_message_id)))
+        if size is not None:
+            query.append(QueryParameter("size", _query_text(size)))
+        return self._client._request_model("GET", suffix, AgentAsyncTaskSync, None, query)
+
     def get_conversation_async_task(
         self,
         conversation_id: str,
@@ -653,6 +682,129 @@ class MessagesApi:
             f"/conversations/{quote(str(conversation_id), safe='')}/async-tasks/{quote(str(async_task_id), safe='')}"
         )
         return self._client._request_model("GET", suffix, AsyncTask, None, ())
+
+    def list_conversation_subagents(
+        self,
+        conversation_id: str,
+        current: int | None = None,
+        size: int | None = 30,
+        order_by: Sequence[str] | None = None,
+        order_direction: Literal["ASC", "DESC"] | None = "ASC",
+        order_null_handling: Literal["NATIVE", "NULLS_FIRST", "NULLS_LAST"] | None = "NATIVE",
+        keyword: str | None = None,
+        status: Sequence[str] | None = None,
+    ) -> SubagentTaskPage:
+        """分页查询子 Agent 任务 / List subagent tasks
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            current: 从 0 开始的页码。 / Zero-based page index.
+            size: 单页记录数。 / Number of records per page.
+            order_by: 排序字段列表。 / Ordered list of sort fields.
+            order_direction: 排序方向。 / Sort direction.
+            order_null_handling: 空值排序策略。 / Null ordering strategy.
+            keyword: 标题或正文检索关键字。 / Title or content search keyword.
+            status: 状态过滤条件。 / Status filter.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/subagents"
+        query: list[QueryParameter] = []
+        if current is not None:
+            query.append(QueryParameter("current", _query_text(current)))
+        if size is not None:
+            query.append(QueryParameter("size", _query_text(size)))
+        if order_by is not None:
+            query.extend(QueryParameter("orderBy", str(value)) for value in order_by)
+        if order_direction is not None:
+            query.append(QueryParameter("orderDirection", _query_text(order_direction)))
+        if order_null_handling is not None:
+            query.append(QueryParameter("orderNullHandling", _query_text(order_null_handling)))
+        if keyword is not None:
+            query.append(QueryParameter("keyword", _query_text(keyword)))
+        if status is not None:
+            query.extend(QueryParameter("status", str(value)) for value in status)
+        return self._client._request_model("GET", suffix, SubagentTaskPage, None, query)
+
+    def sync_conversation_subagents(
+        self,
+        conversation_id: str,
+        cursor: str | None = None,
+        size: int | None = 50,
+    ) -> SubagentTaskSync:
+        """增量同步子 Agent 状态 / Sync subagent task updates
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            cursor: 子 Agent 状态同步游标。 / Subagent-state sync cursor.
+            size: 单页记录数。 / Number of records per page.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/subagents/sync"
+        query: list[QueryParameter] = []
+        if cursor is not None:
+            query.append(QueryParameter("cursor", _query_text(cursor)))
+        if size is not None:
+            query.append(QueryParameter("size", _query_text(size)))
+        return self._client._request_model("GET", suffix, SubagentTaskSync, None, query)
+
+    def get_conversation_subagent(
+        self,
+        conversation_id: str,
+        subagent_task_id: str,
+    ) -> SubagentTask:
+        """读取子 Agent 状态 / Get a subagent task
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            subagent_task_id: 子 Agent 任务 ID。 / Subagent task ID.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = (
+            f"/conversations/{quote(str(conversation_id), safe='')}/subagents/{quote(str(subagent_task_id), safe='')}"
+        )
+        return self._client._request_model("GET", suffix, SubagentTask, None, ())
+
+    def cancel_conversation_subagent(
+        self,
+        conversation_id: str,
+        subagent_task_id: str,
+    ) -> SubagentTask:
+        """取消子 Agent 任务 / Cancel a subagent task
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            subagent_task_id: 子 Agent 任务 ID。 / Subagent task ID.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = (
+            f"/conversations/{quote(str(conversation_id), safe='')}/subagents/{quote(str(subagent_task_id), safe='')}"
+        )
+        return self._client._request_model("DELETE", suffix, SubagentTask, None, ())
+
+    def get_conversation_subagent_result(
+        self,
+        conversation_id: str,
+        subagent_task_id: str,
+    ) -> SubagentTaskResult:
+        """读取子 Agent 结果 / Get a subagent result
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            subagent_task_id: 子 Agent 任务 ID。 / Subagent task ID.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/subagents/{quote(str(subagent_task_id), safe='')}/result"
+        return self._client._request_model("GET", suffix, SubagentTaskResult, None, ())
 
     def cancel_queued_message(
         self,

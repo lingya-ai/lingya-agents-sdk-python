@@ -14,33 +14,44 @@ from __future__ import annotations
 import json
 import pprint
 import re  # noqa: F401
-from typing import Any, ClassVar
+from typing import Annotated, Any, ClassVar
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictStr
 from pydantic_core import to_jsonable_python
 from typing_extensions import Self
 
-from lingya_agents_sdk.models.media_attachment import MediaAttachment
+from lingya_agents_sdk.models.subagent_task import SubagentTask
+from lingya_agents_sdk.models.subagent_task_artifact import SubagentTaskArtifact
+from lingya_agents_sdk.models.workspace_non_file_artifact import WorkspaceNonFileArtifact
 
 
-class AiChatUserQueryBriefEvent(BaseModel):
+class SubagentTaskResult(BaseModel):
     """
-    AiChatUserQueryBriefEvent 的公开协议结构。 / Public contract for ai chat user query brief event.
+    SubagentTaskResult 的公开协议结构。 / Public contract for subagent task result.
     """  # noqa: E501
 
-    type: StrictStr = Field(description="类型判别值 / type discriminator。")
-    query: StrictStr = Field(description="用户问题 / user query。")
-    attachments: list[MediaAttachment] | None = Field(
-        default=None, description="字段 attachments / attachments field。"
+    task: SubagentTask = Field(description="字段 task / task field。")
+    result_text: StrictStr | None = Field(
+        default=None, description="字段 resultText / result text field。", alias="resultText"
     )
-    __properties: ClassVar[list[str]] = ["type", "query", "attachments"]
-
-    @field_validator("type")
-    def type_validate_enum(cls, value):
-        """Validates the enum"""
-        if value not in set(["user-query"]):
-            raise ValueError("must be one of enum values ('user-query')")
-        return value
+    artifacts: list[SubagentTaskArtifact] = Field(description="字段 artifacts / artifacts field。")
+    input_tokens: Annotated[int, Field(strict=True, ge=0)] = Field(
+        description="输入 Token 数 / input token count。", alias="inputTokens"
+    )
+    output_tokens: Annotated[int, Field(strict=True, ge=0)] = Field(
+        description="输出 Token 数 / output token count。", alias="outputTokens"
+    )
+    non_file_artifacts: list[WorkspaceNonFileArtifact] = Field(
+        description="字段 nonFileArtifacts / non file artifacts field。", alias="nonFileArtifacts"
+    )
+    __properties: ClassVar[list[str]] = [
+        "task",
+        "resultText",
+        "artifacts",
+        "inputTokens",
+        "outputTokens",
+        "nonFileArtifacts",
+    ]
 
     model_config = ConfigDict(
         validate_by_name=True,
@@ -59,7 +70,7 @@ class AiChatUserQueryBriefEvent(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self | None:
-        """Create an instance of AiChatUserQueryBriefEvent from a JSON string"""
+        """Create an instance of SubagentTaskResult from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> dict[str, Any]:
@@ -79,22 +90,31 @@ class AiChatUserQueryBriefEvent(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in attachments (list)
+        # override the default output from pydantic by calling `to_dict()` of task
+        if self.task:
+            _dict["task"] = self.task.to_dict()
+        # override the default output from pydantic by calling `to_dict()` of each item in artifacts (list)
         _items = []
-        if self.attachments:
-            for _item_attachments in self.attachments:
-                _items.append(_item_attachments.to_dict() if _item_attachments is not None else None)
-            _dict["attachments"] = _items
-        # set to None if attachments (nullable) is None
+        if self.artifacts:
+            for _item_artifacts in self.artifacts:
+                _items.append(_item_artifacts.to_dict() if _item_artifacts is not None else None)
+            _dict["artifacts"] = _items
+        # override the default output from pydantic by calling `to_dict()` of each item in non_file_artifacts (list)
+        _items = []
+        if self.non_file_artifacts:
+            for _item_non_file_artifacts in self.non_file_artifacts:
+                _items.append(_item_non_file_artifacts.to_dict() if _item_non_file_artifacts is not None else None)
+            _dict["nonFileArtifacts"] = _items
+        # set to None if result_text (nullable) is None
         # and model_fields_set contains the field
-        if self.attachments is None and "attachments" in self.model_fields_set:
-            _dict["attachments"] = None
+        if self.result_text is None and "result_text" in self.model_fields_set:
+            _dict["resultText"] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: dict[str, Any] | None) -> Self | None:
-        """Create an instance of AiChatUserQueryBriefEvent from a dict"""
+        """Create an instance of SubagentTaskResult from a dict"""
         if obj is None:
             return None
 
@@ -103,10 +123,15 @@ class AiChatUserQueryBriefEvent(BaseModel):
 
         _obj = cls.model_validate(
             {
-                "type": obj.get("type"),
-                "query": obj.get("query"),
-                "attachments": [MediaAttachment.from_dict(_item) for _item in obj["attachments"]]
-                if obj.get("attachments") is not None
+                "task": SubagentTask.from_dict(obj["task"]) if obj.get("task") is not None else None,
+                "resultText": obj.get("resultText"),
+                "artifacts": [SubagentTaskArtifact.from_dict(_item) for _item in obj["artifacts"]]
+                if obj.get("artifacts") is not None
+                else None,
+                "inputTokens": obj.get("inputTokens"),
+                "outputTokens": obj.get("outputTokens"),
+                "nonFileArtifacts": [WorkspaceNonFileArtifact.from_dict(_item) for _item in obj["nonFileArtifacts"]]
+                if obj.get("nonFileArtifacts") is not None
                 else None,
             }
         )

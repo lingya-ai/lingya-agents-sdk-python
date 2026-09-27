@@ -8,7 +8,7 @@ Use this SDK to call Lingya Agents OpenAPI from a trusted Python server.
 Installation
 
 ```bash
-pip install lingya-agents-sdk==0.4.0
+pip install lingya-agents-sdk==0.5.0
 ```
 
 ## 快速开始

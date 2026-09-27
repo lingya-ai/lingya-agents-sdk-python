@@ -22,52 +22,47 @@ from pydantic_core import to_jsonable_python
 from typing_extensions import Self
 
 
-class AsyncTask(BaseModel):
+class SubagentTask(BaseModel):
     """
-    AsyncTask 的公开协议结构。 / Public contract for async task.
+    SubagentTask 的公开协议结构。 / Public contract for subagent task.
     """  # noqa: E501
 
     task_id: StrictStr = Field(description="异步任务 ID / asynchronous task ID。", alias="taskId")
-    task_type: StrictStr = Field(description="字段 taskType / task type field。", alias="taskType")
-    title: StrictStr = Field(description="标题 / title。")
+    description: StrictStr = Field(description="可读说明 / human-readable description。")
+    subagent_type: StrictStr = Field(description="字段 subagentType / subagent type field。", alias="subagentType")
     status: StrictStr = Field(description="当前状态 / current status。")
+    phase: StrictStr | None = Field(default=None, description="字段 phase / phase field。")
     progress_percent: Annotated[int, Field(le=100, strict=True, ge=0)] | None = Field(
         default=None, description="字段 progressPercent / progress percent field。", alias="progressPercent"
     )
-    phase: StrictStr | None = Field(default=None, description="字段 phase / phase field。")
-    status_message: StrictStr | None = Field(
-        default=None, description="字段 statusMessage / status message field。", alias="statusMessage"
+    parent_conversation_id: StrictStr = Field(
+        description="字段 parentConversationId / parent conversation id field。", alias="parentConversationId"
+    )
+    parent_message_id: StrictStr = Field(
+        description="字段 parentMessageId / parent message id field。", alias="parentMessageId"
+    )
+    child_conversation_id: StrictStr | None = Field(
+        default=None,
+        description="字段 childConversationId / child conversation id field。",
+        alias="childConversationId",
+    )
+    child_message_id: StrictStr | None = Field(
+        default=None, description="字段 childMessageId / child message id field。", alias="childMessageId"
     )
     result_available: StrictBool = Field(
         description="字段 resultAvailable / result available field。", alias="resultAvailable"
     )
-    cancellable: StrictBool = Field(description="字段 cancellable / cancellable field。")
+    artifact_count: Annotated[int, Field(strict=True, ge=0)] = Field(
+        description="字段 artifactCount / artifact count field。", alias="artifactCount"
+    )
+    notification_status: StrictStr = Field(
+        description="字段 notificationStatus / notification status field。", alias="notificationStatus"
+    )
     failure_code: StrictStr | None = Field(
         default=None, description="字段 failureCode / failure code field。", alias="failureCode"
     )
     failure_message: StrictStr | None = Field(
         default=None, description="字段 failureMessage / failure message field。", alias="failureMessage"
-    )
-    origin_conversation_id: StrictStr = Field(
-        description="字段 originConversationId / origin conversation id field。", alias="originConversationId"
-    )
-    origin_message_id: StrictStr = Field(
-        description="字段 originMessageId / origin message id field。", alias="originMessageId"
-    )
-    origin_tool_id: StrictStr = Field(description="字段 originToolId / origin tool id field。", alias="originToolId")
-    origin_tool_name: StrictStr = Field(
-        description="字段 originToolName / origin tool name field。", alias="originToolName"
-    )
-    target_message_id: StrictStr = Field(
-        description="字段 targetMessageId / target message id field。", alias="targetMessageId"
-    )
-    notification_status: StrictStr = Field(
-        description="字段 notificationStatus / notification status field。", alias="notificationStatus"
-    )
-    notification_message_id: StrictStr | None = Field(
-        default=None,
-        description="字段 notificationMessageId / notification message id field。",
-        alias="notificationMessageId",
     )
     created_time: datetime = Field(description="创建时间 / creation time。", alias="createdTime")
     started_time: datetime | None = Field(
@@ -77,43 +72,28 @@ class AsyncTask(BaseModel):
         default=None, description="字段 completedTime / completed time field。", alias="completedTime"
     )
     last_update_time: datetime = Field(description="最后更新时间 / last update time。", alias="lastUpdateTime")
-    tracking_status: StrictStr = Field(
-        description="字段 trackingStatus / tracking status field。", alias="trackingStatus"
-    )
-    tracking_failure_code: StrictStr | None = Field(
-        default=None,
-        description="字段 trackingFailureCode / tracking failure code field。",
-        alias="trackingFailureCode",
-    )
-    last_poll_error: StrictStr | None = Field(
-        default=None, description="字段 lastPollError / last poll error field。", alias="lastPollError"
-    )
+    cancellable: StrictBool = Field(description="字段 cancellable / cancellable field。")
     __properties: ClassVar[list[str]] = [
         "taskId",
-        "taskType",
-        "title",
+        "description",
+        "subagentType",
         "status",
-        "progressPercent",
         "phase",
-        "statusMessage",
+        "progressPercent",
+        "parentConversationId",
+        "parentMessageId",
+        "childConversationId",
+        "childMessageId",
         "resultAvailable",
-        "cancellable",
+        "artifactCount",
+        "notificationStatus",
         "failureCode",
         "failureMessage",
-        "originConversationId",
-        "originMessageId",
-        "originToolId",
-        "originToolName",
-        "targetMessageId",
-        "notificationStatus",
-        "notificationMessageId",
         "createdTime",
         "startedTime",
         "completedTime",
         "lastUpdateTime",
-        "trackingStatus",
-        "trackingFailureCode",
-        "lastPollError",
+        "cancellable",
     ]
 
     model_config = ConfigDict(
@@ -133,7 +113,7 @@ class AsyncTask(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self | None:
-        """Create an instance of AsyncTask from a JSON string"""
+        """Create an instance of SubagentTask from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> dict[str, Any]:
@@ -153,20 +133,25 @@ class AsyncTask(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # set to None if progress_percent (nullable) is None
-        # and model_fields_set contains the field
-        if self.progress_percent is None and "progress_percent" in self.model_fields_set:
-            _dict["progressPercent"] = None
-
         # set to None if phase (nullable) is None
         # and model_fields_set contains the field
         if self.phase is None and "phase" in self.model_fields_set:
             _dict["phase"] = None
 
-        # set to None if status_message (nullable) is None
+        # set to None if progress_percent (nullable) is None
         # and model_fields_set contains the field
-        if self.status_message is None and "status_message" in self.model_fields_set:
-            _dict["statusMessage"] = None
+        if self.progress_percent is None and "progress_percent" in self.model_fields_set:
+            _dict["progressPercent"] = None
+
+        # set to None if child_conversation_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.child_conversation_id is None and "child_conversation_id" in self.model_fields_set:
+            _dict["childConversationId"] = None
+
+        # set to None if child_message_id (nullable) is None
+        # and model_fields_set contains the field
+        if self.child_message_id is None and "child_message_id" in self.model_fields_set:
+            _dict["childMessageId"] = None
 
         # set to None if failure_code (nullable) is None
         # and model_fields_set contains the field
@@ -178,11 +163,6 @@ class AsyncTask(BaseModel):
         if self.failure_message is None and "failure_message" in self.model_fields_set:
             _dict["failureMessage"] = None
 
-        # set to None if notification_message_id (nullable) is None
-        # and model_fields_set contains the field
-        if self.notification_message_id is None and "notification_message_id" in self.model_fields_set:
-            _dict["notificationMessageId"] = None
-
         # set to None if started_time (nullable) is None
         # and model_fields_set contains the field
         if self.started_time is None and "started_time" in self.model_fields_set:
@@ -193,21 +173,11 @@ class AsyncTask(BaseModel):
         if self.completed_time is None and "completed_time" in self.model_fields_set:
             _dict["completedTime"] = None
 
-        # set to None if tracking_failure_code (nullable) is None
-        # and model_fields_set contains the field
-        if self.tracking_failure_code is None and "tracking_failure_code" in self.model_fields_set:
-            _dict["trackingFailureCode"] = None
-
-        # set to None if last_poll_error (nullable) is None
-        # and model_fields_set contains the field
-        if self.last_poll_error is None and "last_poll_error" in self.model_fields_set:
-            _dict["lastPollError"] = None
-
         return _dict
 
     @classmethod
     def from_dict(cls, obj: dict[str, Any] | None) -> Self | None:
-        """Create an instance of AsyncTask from a dict"""
+        """Create an instance of SubagentTask from a dict"""
         if obj is None:
             return None
 
@@ -217,30 +187,25 @@ class AsyncTask(BaseModel):
         _obj = cls.model_validate(
             {
                 "taskId": obj.get("taskId"),
-                "taskType": obj.get("taskType"),
-                "title": obj.get("title"),
+                "description": obj.get("description"),
+                "subagentType": obj.get("subagentType"),
                 "status": obj.get("status"),
-                "progressPercent": obj.get("progressPercent"),
                 "phase": obj.get("phase"),
-                "statusMessage": obj.get("statusMessage"),
+                "progressPercent": obj.get("progressPercent"),
+                "parentConversationId": obj.get("parentConversationId"),
+                "parentMessageId": obj.get("parentMessageId"),
+                "childConversationId": obj.get("childConversationId"),
+                "childMessageId": obj.get("childMessageId"),
                 "resultAvailable": obj.get("resultAvailable"),
-                "cancellable": obj.get("cancellable"),
+                "artifactCount": obj.get("artifactCount"),
+                "notificationStatus": obj.get("notificationStatus"),
                 "failureCode": obj.get("failureCode"),
                 "failureMessage": obj.get("failureMessage"),
-                "originConversationId": obj.get("originConversationId"),
-                "originMessageId": obj.get("originMessageId"),
-                "originToolId": obj.get("originToolId"),
-                "originToolName": obj.get("originToolName"),
-                "targetMessageId": obj.get("targetMessageId"),
-                "notificationStatus": obj.get("notificationStatus"),
-                "notificationMessageId": obj.get("notificationMessageId"),
                 "createdTime": obj.get("createdTime"),
                 "startedTime": obj.get("startedTime"),
                 "completedTime": obj.get("completedTime"),
                 "lastUpdateTime": obj.get("lastUpdateTime"),
-                "trackingStatus": obj.get("trackingStatus"),
-                "trackingFailureCode": obj.get("trackingFailureCode"),
-                "lastPollError": obj.get("lastPollError"),
+                "cancellable": obj.get("cancellable"),
             }
         )
         return _obj

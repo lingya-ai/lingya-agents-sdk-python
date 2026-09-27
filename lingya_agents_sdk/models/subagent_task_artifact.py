@@ -14,32 +14,50 @@ from __future__ import annotations
 import json
 import pprint
 import re  # noqa: F401
-from typing import Any, ClassVar
+from typing import Annotated, Any, ClassVar
 
-from pydantic import BaseModel, ConfigDict, Field, StrictStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictStr, field_validator
 from pydantic_core import to_jsonable_python
 from typing_extensions import Self
 
-from lingya_agents_sdk.models.media_attachment import MediaAttachment
 
-
-class AiChatUserQueryBriefEvent(BaseModel):
+class SubagentTaskArtifact(BaseModel):
     """
-    AiChatUserQueryBriefEvent 的公开协议结构。 / Public contract for ai chat user query brief event.
+    SubagentTaskArtifact 的公开协议结构。 / Public contract for subagent task artifact.
     """  # noqa: E501
 
-    type: StrictStr = Field(description="类型判别值 / type discriminator。")
-    query: StrictStr = Field(description="用户问题 / user query。")
-    attachments: list[MediaAttachment] | None = Field(
-        default=None, description="字段 attachments / attachments field。"
+    artifact_id: StrictStr = Field(description="字段 artifactId / artifact id field。", alias="artifactId")
+    name: StrictStr = Field(description="字段 name / name field。")
+    mime_type: StrictStr | None = Field(default=None, description="MIME 类型 / MIME type。", alias="mimeType")
+    size: Annotated[int, Field(strict=True, ge=0)] | None = Field(
+        default=None, description="大小（字节）或分页容量 / byte size or page size。"
     )
-    __properties: ClassVar[list[str]] = ["type", "query", "attachments"]
+    relative_path: StrictStr | None = Field(
+        default=None, description="字段 relativePath / relative path field。", alias="relativePath"
+    )
+    delivery_status: StrictStr = Field(
+        description="字段 deliveryStatus / delivery status field。", alias="deliveryStatus"
+    )
+    issue_codes: list[StrictStr] = Field(description="字段 issueCodes / issue codes field。", alias="issueCodes")
+    recoverable: StrictBool = Field(description="字段 recoverable / recoverable field。")
+    __properties: ClassVar[list[str]] = [
+        "artifactId",
+        "name",
+        "mimeType",
+        "size",
+        "relativePath",
+        "deliveryStatus",
+        "issueCodes",
+        "recoverable",
+    ]
 
-    @field_validator("type")
-    def type_validate_enum(cls, value):
+    @field_validator("delivery_status")
+    def delivery_status_validate_enum(cls, value):
         """Validates the enum"""
-        if value not in set(["user-query"]):
-            raise ValueError("must be one of enum values ('user-query')")
+        if value not in set(["NOT_APPLICABLE", "UNVALIDATED", "ACCEPTED", "ACCEPTED_WITH_WARNINGS", "BLOCKED"]):
+            raise ValueError(
+                "must be one of enum values ('NOT_APPLICABLE', 'UNVALIDATED', 'ACCEPTED', 'ACCEPTED_WITH_WARNINGS', 'BLOCKED')"
+            )
         return value
 
     model_config = ConfigDict(
@@ -59,7 +77,7 @@ class AiChatUserQueryBriefEvent(BaseModel):
 
     @classmethod
     def from_json(cls, json_str: str) -> Self | None:
-        """Create an instance of AiChatUserQueryBriefEvent from a JSON string"""
+        """Create an instance of SubagentTaskArtifact from a JSON string"""
         return cls.from_dict(json.loads(json_str))
 
     def to_dict(self) -> dict[str, Any]:
@@ -79,22 +97,26 @@ class AiChatUserQueryBriefEvent(BaseModel):
             exclude=excluded_fields,
             exclude_none=True,
         )
-        # override the default output from pydantic by calling `to_dict()` of each item in attachments (list)
-        _items = []
-        if self.attachments:
-            for _item_attachments in self.attachments:
-                _items.append(_item_attachments.to_dict() if _item_attachments is not None else None)
-            _dict["attachments"] = _items
-        # set to None if attachments (nullable) is None
+        # set to None if mime_type (nullable) is None
         # and model_fields_set contains the field
-        if self.attachments is None and "attachments" in self.model_fields_set:
-            _dict["attachments"] = None
+        if self.mime_type is None and "mime_type" in self.model_fields_set:
+            _dict["mimeType"] = None
+
+        # set to None if size (nullable) is None
+        # and model_fields_set contains the field
+        if self.size is None and "size" in self.model_fields_set:
+            _dict["size"] = None
+
+        # set to None if relative_path (nullable) is None
+        # and model_fields_set contains the field
+        if self.relative_path is None and "relative_path" in self.model_fields_set:
+            _dict["relativePath"] = None
 
         return _dict
 
     @classmethod
     def from_dict(cls, obj: dict[str, Any] | None) -> Self | None:
-        """Create an instance of AiChatUserQueryBriefEvent from a dict"""
+        """Create an instance of SubagentTaskArtifact from a dict"""
         if obj is None:
             return None
 
@@ -103,11 +125,14 @@ class AiChatUserQueryBriefEvent(BaseModel):
 
         _obj = cls.model_validate(
             {
-                "type": obj.get("type"),
-                "query": obj.get("query"),
-                "attachments": [MediaAttachment.from_dict(_item) for _item in obj["attachments"]]
-                if obj.get("attachments") is not None
-                else None,
+                "artifactId": obj.get("artifactId"),
+                "name": obj.get("name"),
+                "mimeType": obj.get("mimeType"),
+                "size": obj.get("size"),
+                "relativePath": obj.get("relativePath"),
+                "deliveryStatus": obj.get("deliveryStatus"),
+                "issueCodes": obj.get("issueCodes"),
+                "recoverable": obj.get("recoverable"),
             }
         )
         return _obj

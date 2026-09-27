@@ -1,6 +1,6 @@
 {
   "packageName": "lingya_agents_sdk",
-  "packageVersion": "0.4.0",
+  "packageVersion": "0.5.0",
   "projectName": "lingya-agents-sdk",
   "library": "urllib3",
   "generateSourceCodeOnly": true

@@ -149,10 +149,40 @@ def test_all_46_real_endpoints() -> None:
                 f"/conversations/{first.conversation_id}/async-tasks",
                 lambda: user.messages.list_conversation_async_tasks(first.conversation_id),
             )
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}/async-tasks/sync",
+                lambda: user.messages.sync_conversation_async_tasks(first.conversation_id),
+            )
             coverage.domain(
                 "GET",
                 f"/conversations/{first.conversation_id}/async-tasks/missing-async-task",
                 lambda: user.messages.get_conversation_async_task(first.conversation_id, "missing-async-task"),
+            )
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}/subagents",
+                lambda: user.messages.list_conversation_subagents(first.conversation_id),
+            )
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}/subagents/sync",
+                lambda: user.messages.sync_conversation_subagents(first.conversation_id),
+            )
+            coverage.domain(
+                "GET",
+                f"/conversations/{first.conversation_id}/subagents/missing-subagent",
+                lambda: user.messages.get_conversation_subagent(first.conversation_id, "missing-subagent"),
+            )
+            coverage.domain(
+                "GET",
+                f"/conversations/{first.conversation_id}/subagents/missing-subagent/result",
+                lambda: user.messages.get_conversation_subagent_result(first.conversation_id, "missing-subagent"),
+            )
+            coverage.domain(
+                "DELETE",
+                f"/conversations/{first.conversation_id}/subagents/missing-subagent",
+                lambda: user.messages.cancel_conversation_subagent(first.conversation_id, "missing-subagent"),
             )
             coverage.domain(
                 "DELETE",
@@ -293,7 +323,7 @@ def test_all_46_real_endpoints() -> None:
                 )
             finally:
                 coverage.write_report()
-        assert len(coverage.seen) == 46
+        assert len(coverage.seen) == 52
         assert sorted(coverage.seen) == sorted(published_endpoints())
 
 
@@ -347,7 +377,8 @@ def canonical_suffix(suffix: str) -> str:
         suffix,
     )
     for pattern, replacement in [
-        (r"/async-tasks/[^/]+", "/async-tasks/{asyncTaskId}"),
+        (r"/async-tasks/(?!sync(?:/|$))[^/]+", "/async-tasks/{asyncTaskId}"),
+        (r"/subagents/[^/]+", "/subagents/{subagentTaskId}"),
         (r"/messages/[^/]+", "/messages/{messageId}"),
         (r"/plan-intermediate-files/[^/]+", "/plan-intermediate-files/{fileId}"),
         (r"^/conversations/\{conversationId\}/files/[^/]+", "/conversations/{conversationId}/files/{fileId}"),

@@ -24,8 +24,8 @@ def test_every_contract_operation_has_one_bound_method() -> None:
         assert "channel_id" not in inspect.signature(method).parameters
         methods.add((class_name, method_name))
 
-    assert len(manifest) == 46
-    assert len(methods) == 46
+    assert len(manifest) == 52
+    assert len(methods) == 52
 
 
 def test_root_channel_is_encoded_and_injected_once() -> None:
