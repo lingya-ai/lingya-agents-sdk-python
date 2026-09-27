@@ -34,7 +34,7 @@ jobs:
           printf 'lingya-ai/lingya-agents-openapi@%s\n' "$CONTRACT_TAG" > CONTRACT_VERSION
       - run: pip install -r requirements-ci.txt -i https://pypi.tuna.tsinghua.edu.cn/simple && pip install -e . --no-deps
       - run: python scripts/generate_bound_api.py && pytest -m "not live"
-      - uses: peter-evans/create-pull-request@v7
+      - uses: peter-evans/create-pull-request@v8
         with:
           branch: automation/contract-${{ env.CONTRACT_TAG }}
           commit-message: "chore: update contract to ${{ env.CONTRACT_TAG }}"
