@@ -171,7 +171,7 @@
     "lingya_agents_sdk/bound_api.py": "fe66aa3a333aa4fa8087eb55cb9959be03d0417920c83448d41a79087ddb6d0b",
     "lingya_agents_sdk/client.py": "e1345054faae4fbd18bff02a16a6fe29039e23e192259f61cdedf92e97e36b1e",
     "lingya_agents_sdk/events.py": "22732d78e3d7b328ac94383a0e8040530742bb022c4bbde9930c7c7611735e9c",
-    "lingya_agents_sdk/lifecycle.py": "19e7d6a706df2ed18bfa8d056d118e05e7188d79d73105d22f8d17fdc230777f",
+    "lingya_agents_sdk/lifecycle.py": "a654278b30bbcb79b832182956ab4d4d4d201606b09cacbd675242c2fe7e176f",
     "lingya_agents_sdk/models/agent_async_task_sync.py": "a76d1f61731876be0a37061a6a70b4b90195489c93cb2d8e203973ffb75e8c20",
     "lingya_agents_sdk/models/agent_file.py": "f13b9c287261918f9bdc5b14468bc2e53e48be2d399e0cf67f328094bf2c04ba",
     "lingya_agents_sdk/models/agent_goal.py": "22b072d3f9eb9363fa378b30fe374022ce3738339dcb2c2fbaf346fe384768ad",

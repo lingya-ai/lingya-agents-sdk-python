@@ -2,6 +2,8 @@
 
 ## 0.7.0 - 2026-10-20
 
+- Preserve unified timeout errors on Python 3.10 as well as newer Python versions.
+
 - Add AsyncAgentsClient, async token callbacks, scoped cancellation/deadlines, owned SSE/WebSocket subscriptions, diagnostics and download metadata; retain the synchronous facade.
 - Add identity-bound HMAC/token construction and independent fresh-token callbacks per request; reject token presign, redact provider errors, and disable token retries/redirects.
 - Align with contract v0.1.7: add token issuance, goals, groups, conversation summary, message sync and message plan status.
