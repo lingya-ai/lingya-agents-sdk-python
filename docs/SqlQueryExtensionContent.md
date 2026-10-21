@@ -6,7 +6,7 @@ SqlQueryExtensionContent 的公开协议结构。 / Public contract for sql quer
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**sql** | **str** | 字段 sql / sql field。 | 
+**sql** | **str** | 字段 sql / sql field。 |
 
 ## Example
 

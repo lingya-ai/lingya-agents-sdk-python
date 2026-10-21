@@ -6,10 +6,10 @@ GeneratePreSignedUrlInput 的公开协议结构。 / Public contract for generat
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**file_name** | **str** | 文件名 / file name。 | 
-**module** | **str** | 字段 module / module field。 | 
-**content_md5** | **str** | 字段 contentMd5 / content md5 field。 | 
-**file_id** | **int** | 文件 ID / file ID。 | [optional] 
+**file_name** | **str** | 文件名 / file name。 |
+**module** | **str** | 字段 module / module field。 |
+**content_md5** | **str** | 字段 contentMd5 / content md5 field。 |
+**file_id** | **int** | 文件 ID / file ID。 | [optional]
 
 ## Example
 

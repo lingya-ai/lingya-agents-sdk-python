@@ -6,9 +6,9 @@ SkillResourceExtensionToolExtension 的公开协议结构。 / Public contract f
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**category** | **str** | 扩展类别判别值 / extension category discriminator。 | 
-**content** | [**SkillResourceExtensionContent**](SkillResourceExtensionContent.md) | 与类别对应的强类型内容 / strongly typed content for the category。 | 
-**special_render** | **bool** | 是否使用独立视图渲染 / whether to use a dedicated view。 | 
+**category** | **str** | 扩展类别判别值 / extension category discriminator。 |
+**content** | [**SkillResourceExtensionContent**](SkillResourceExtensionContent.md) | 与类别对应的强类型内容 / strongly typed content for the category。 |
+**special_render** | **bool** | 是否使用独立视图渲染 / whether to use a dedicated view。 |
 
 ## Example
 

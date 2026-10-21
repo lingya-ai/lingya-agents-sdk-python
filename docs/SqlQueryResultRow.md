@@ -6,7 +6,7 @@ SqlQueryResultRow 的公开协议结构。 / Public contract for sql query resul
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**values** | **List[Optional[str]]** | 字段 values / values field。 | 
+**values** | **List[Optional[str]]** | 字段 values / values field。 |
 
 ## Example
 

@@ -6,10 +6,10 @@ ToolExtension 的公开协议结构。 / Public contract for tool extension.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**category** | **str** | 扩展类别判别值 / extension category discriminator。 | 
-**content** | [**TaskProgressExtensionContent**](TaskProgressExtensionContent.md) | 与类别对应的强类型内容 / strongly typed content for the category。 | 
-**special_render** | **bool** | 是否使用独立视图渲染 / whether to use a dedicated view。 | 
-**raw_json** | **str** | 未识别对象的原始 JSON / raw JSON for an unrecognized object。 | 
+**category** | **str** | 扩展类别判别值 / extension category discriminator。 |
+**content** | [**TaskProgressExtensionContent**](TaskProgressExtensionContent.md) | 与类别对应的强类型内容 / strongly typed content for the category。 |
+**special_render** | **bool** | 是否使用独立视图渲染 / whether to use a dedicated view。 |
+**raw_json** | **str** | 未识别对象的原始 JSON / raw JSON for an unrecognized object。 |
 
 ## Example
 

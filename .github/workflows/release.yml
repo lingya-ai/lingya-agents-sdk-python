@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           repository: lingya-ai/lingya-agents-openapi
-          ref: v0.1.5
+          ref: v0.1.7
           path: lingya-agents-openapi
       - uses: actions/setup-python@v6
         with:
@@ -29,7 +29,7 @@ jobs:
         working-directory: lingya-agents-sdk-python
       - run: pip install -r requirements-ci.txt -i https://pypi.tuna.tsinghua.edu.cn/simple && pip install -e . --no-deps
         working-directory: lingya-agents-sdk-python
-      - run: python scripts/generate_bound_api.py && ruff check lingya_agents_sdk/client.py lingya_agents_sdk/bound_api.py lingya_agents_sdk/events.py lingya_agents_sdk/sse.py tests scripts && mypy && python scripts/audit_models.py && pytest -m "not live"
+      - run: python scripts/generate_bound_api.py && ruff check . && mypy && python scripts/audit_models.py && pytest -m "not live"
         working-directory: lingya-agents-sdk-python
       - run: python -m build --no-isolation
         working-directory: lingya-agents-sdk-python

@@ -10,7 +10,7 @@ def decode_sse_lines(lines: Iterable[str]) -> Iterator[str]:
         lines: 已去除 CR/LF 的增量 SSE 行。
 
     Yields:
-        每个完整事件合并后的 data 字符串；正常 EOF 会提交最后一个未闭合 frame。
+        每个完整事件合并后的 data 字符串；EOF 丢弃未闭合 frame。
     """
     data: list[str] = []
     for line in lines:
@@ -20,5 +20,3 @@ def decode_sse_lines(lines: Iterable[str]) -> Iterator[str]:
                 data.clear()
         elif line.startswith("data:"):
             data.append(line[5:].removeprefix(" "))
-    if data:
-        yield "\n".join(data)

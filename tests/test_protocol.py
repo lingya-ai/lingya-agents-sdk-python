@@ -10,7 +10,7 @@ from lingya_agents_sdk.sse import decode_sse_lines
 
 
 def test_all_hmac_golden_vectors() -> None:
-    fixture = json.loads((Path(__file__).parents[2] / "lingya-agents-openapi/test-vectors/hmac-v1.json").read_text())
+    fixture = json.loads((Path(__file__).parents[1] / "test-vectors/hmac-v1.json").read_text())
     for case in fixture["cases"]:
         assert sign_canonical(case["secret"], case["canonical"]) == case["signature"]
 

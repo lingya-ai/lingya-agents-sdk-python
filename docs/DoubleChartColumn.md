@@ -6,9 +6,9 @@ DoubleChartColumn 的公开协议结构。 / Public contract for double chart co
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **str** | 字段 name / name field。 | 
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**values** | **List[Optional[float]]** | 字段 values / values field。 | 
+**name** | **str** | 字段 name / name field。 |
+**type** | **str** | 类型判别值 / type discriminator。 |
+**values** | **List[Optional[float]]** | 字段 values / values field。 |
 
 ## Example
 

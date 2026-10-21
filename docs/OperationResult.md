@@ -6,8 +6,8 @@ OperationResult 的公开协议结构。 / Public contract for operation result.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**success** | **bool** | 字段 success / success field。 | 
-**message** | **str** | 消息正文 / message text。 | [optional] 
+**success** | **bool** | 字段 success / success field。 |
+**message** | **str** | 消息正文 / message text。 | [optional]
 
 ## Example
 

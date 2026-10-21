@@ -6,8 +6,8 @@ FieldError 的公开协议结构。 / Public contract for field error.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**var_field** | **str** | 字段 field / field field。 | 
-**message** | **str** | 消息正文 / message text。 | 
+**var_field** | **str** | 字段 field / field field。 |
+**message** | **str** | 消息正文 / message text。 |
 
 ## Example
 

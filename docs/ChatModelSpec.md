@@ -6,16 +6,16 @@ ChatModelSpec 的公开协议结构。 / Public contract for chat model spec.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**key_group_id** | **int** | 字段 keyGroupId / key group id field。 | 
-**model** | **str** | 字段 model / model field。 | 
-**thinking** | **bool** | 字段 thinking / thinking field。 | [optional] 
-**stop_sequences** | **List[str]** | 字段 stopSequences / stop sequences field。 | [optional] 
-**temperature** | **float** | 字段 temperature / temperature field。 | [optional] 
-**max_tokens** | **int** | 字段 maxTokens / max tokens field。 | [optional] 
-**top_p** | **float** | 字段 topP / top p field。 | [optional] 
-**top_k** | **int** | 字段 topK / top k field。 | [optional] 
-**frequency_penalty** | **float** | 字段 frequencyPenalty / frequency penalty field。 | [optional] 
-**presence_penalty** | **float** | 字段 presencePenalty / presence penalty field。 | [optional] 
+**key_group_id** | **int** | 字段 keyGroupId / key group id field。 |
+**model** | **str** | 字段 model / model field。 |
+**thinking** | **bool** | 字段 thinking / thinking field。 | [optional]
+**stop_sequences** | **List[str]** | 字段 stopSequences / stop sequences field。 | [optional]
+**temperature** | **float** | 字段 temperature / temperature field。 | [optional]
+**max_tokens** | **int** | 字段 maxTokens / max tokens field。 | [optional]
+**top_p** | **float** | 字段 topP / top p field。 | [optional]
+**top_k** | **int** | 字段 topK / top k field。 | [optional]
+**frequency_penalty** | **float** | 字段 frequencyPenalty / frequency penalty field。 | [optional]
+**presence_penalty** | **float** | 字段 presencePenalty / presence penalty field。 | [optional]
 
 ## Example
 

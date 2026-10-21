@@ -6,10 +6,10 @@ ChartNumberFormat 的公开协议结构。 / Public contract for chart number fo
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**currency** | **str** | 字段 currency / currency field。 | [optional] 
-**decimal_places** | **int** | 字段 decimalPlaces / decimal places field。 | 
-**value_scale** | **str** | 字段 valueScale / value scale field。 | [optional] 
+**type** | **str** | 类型判别值 / type discriminator。 |
+**currency** | **str** | 字段 currency / currency field。 | [optional]
+**decimal_places** | **int** | 字段 decimalPlaces / decimal places field。 |
+**value_scale** | **str** | 字段 valueScale / value scale field。 | [optional]
 
 ## Example
 

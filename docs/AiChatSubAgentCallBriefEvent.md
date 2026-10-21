@@ -6,11 +6,11 @@ AiChatSubAgentCallBriefEvent 的公开协议结构。 / Public contract for ai c
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**tool_call_id** | **str** | 字段 toolCallId / tool call id field。 | 
-**tool_name** | **str** | 字段 toolName / tool name field。 | 
-**sub_agent_conversation_id** | **str** | 字段 subAgentConversationId / sub agent conversation id field。 | 
-**sub_agent_message_id** | **str** | 字段 subAgentMessageId / sub agent message id field。 | 
+**type** | **str** | 类型判别值 / type discriminator。 |
+**tool_call_id** | **str** | 字段 toolCallId / tool call id field。 |
+**tool_name** | **str** | 字段 toolName / tool name field。 |
+**sub_agent_conversation_id** | **str** | 字段 subAgentConversationId / sub agent conversation id field。 |
+**sub_agent_message_id** | **str** | 字段 subAgentMessageId / sub agent message id field。 |
 
 ## Example
 

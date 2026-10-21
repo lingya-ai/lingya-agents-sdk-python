@@ -6,9 +6,9 @@ PlanApprovalExtensionContent 的公开协议结构。 / Public contract for plan
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**preview_file_id** | **int** | 字段 previewFileId / preview file id field。 | 
-**server_now** | **datetime** | 字段 serverNow / server now field。 | 
-**approval_timeout_at** | **datetime** | 字段 approvalTimeoutAt / approval timeout at field。 | 
+**preview_file_id** | **int** | 字段 previewFileId / preview file id field。 |
+**server_now** | **datetime** | 字段 serverNow / server now field。 |
+**approval_timeout_at** | **datetime** | 字段 approvalTimeoutAt / approval timeout at field。 |
 
 ## Example
 

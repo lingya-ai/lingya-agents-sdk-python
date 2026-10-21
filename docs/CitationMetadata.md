@@ -6,10 +6,10 @@ CitationMetadata 的公开协议结构。 / Public contract for citation metadat
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**reference_id** | **int** | 字段 referenceId / reference id field。 | 
-**title** | **str** | 标题 / title。 | [optional] 
-**description** | **str** | 可读说明 / human-readable description。 | [optional] 
+**type** | **str** | 类型判别值 / type discriminator。 |
+**reference_id** | **int** | 字段 referenceId / reference id field。 |
+**title** | **str** | 标题 / title。 | [optional]
+**description** | **str** | 可读说明 / human-readable description。 | [optional]
 
 ## Example
 

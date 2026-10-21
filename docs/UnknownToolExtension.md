@@ -6,8 +6,8 @@ UnknownToolExtension 的公开协议结构。 / Public contract for unknown tool
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**category** | **str** | 扩展类别判别值 / extension category discriminator。 | 
-**raw_json** | **str** | 未识别对象的原始 JSON / raw JSON for an unrecognized object。 | 
+**category** | **str** | 扩展类别判别值 / extension category discriminator。 |
+**raw_json** | **str** | 未识别对象的原始 JSON / raw JSON for an unrecognized object。 |
 
 ## Example
 

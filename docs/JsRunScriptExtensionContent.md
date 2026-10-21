@@ -6,7 +6,7 @@ JsRunScriptExtensionContent 的公开协议结构。 / Public contract for js ru
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**script** | **str** | 字段 script / script field。 | 
+**script** | **str** | 字段 script / script field。 |
 
 ## Example
 

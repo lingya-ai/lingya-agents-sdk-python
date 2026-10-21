@@ -6,11 +6,11 @@ SqlResultColumnSchema 的公开协议结构。 / Public contract for sql result 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **str** | 字段 name / name field。 | 
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**nullable** | **bool** | 字段 nullable / nullable field。 | 
-**precision** | **int** | 字段 precision / precision field。 | [optional] 
-**scale** | **int** | 字段 scale / scale field。 | [optional] 
+**name** | **str** | 字段 name / name field。 |
+**type** | **str** | 类型判别值 / type discriminator。 |
+**nullable** | **bool** | 字段 nullable / nullable field。 |
+**precision** | **int** | 字段 precision / precision field。 | [optional]
+**scale** | **int** | 字段 scale / scale field。 | [optional]
 
 ## Example
 

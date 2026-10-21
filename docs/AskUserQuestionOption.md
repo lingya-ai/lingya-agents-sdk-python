@@ -6,8 +6,8 @@ AskUserQuestionOption 的公开协议结构。 / Public contract for ask user qu
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**text** | **str** | 字段 text / text field。 | 
-**recommended** | **bool** | 字段 recommended / recommended field。 | 
+**text** | **str** | 字段 text / text field。 |
+**recommended** | **bool** | 字段 recommended / recommended field。 |
 
 ## Example
 

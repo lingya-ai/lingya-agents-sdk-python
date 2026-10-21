@@ -18,23 +18,26 @@ from lingya_agents_sdk.client import (
     ApiError,
     OpenApiCredentials,
 )
+from lingya_agents_sdk.models.agent_goal_ref_input import AgentGoalRefInput
 from lingya_agents_sdk.models.ai_chat_events_batch_input import AiChatEventsBatchInput
 from lingya_agents_sdk.models.ai_chat_input import AiChatInput
 from lingya_agents_sdk.models.ai_chat_stream_input import AiChatStreamInput
 from lingya_agents_sdk.models.chat_stream_probe_input import ChatStreamProbeInput
 from lingya_agents_sdk.models.confirm_upload_input import ConfirmUploadInput
 from lingya_agents_sdk.models.conversation_activity_batch_input import ConversationActivityBatchInput
+from lingya_agents_sdk.models.conversation_group_name_input import ConversationGroupNameInput
 from lingya_agents_sdk.models.conversation_read_receipt_input import ConversationReadReceiptInput
-from lingya_agents_sdk.models.conversation_share_input import ConversationShareInput
 from lingya_agents_sdk.models.conversation_status_input import ConversationStatusInput
 from lingya_agents_sdk.models.conversation_title_input import ConversationTitleInput
 from lingya_agents_sdk.models.create_file_input import CreateFileInput
+from lingya_agents_sdk.models.edit_agent_goal_input import EditAgentGoalInput
 from lingya_agents_sdk.models.generate_pre_signed_url_input import GeneratePreSignedUrlInput
 from lingya_agents_sdk.models.plan_approval_input import PlanApprovalInput
+from lingya_agents_sdk.models.update_conversation_group_input import UpdateConversationGroupInput
 from lingya_agents_sdk.models.user_input_answer_input import UserInputAnswerInput
 
 BASE_PATH = "/api/agents/channel/openapi/v1/{channelId}/chat"
-DOMAIN_STATUSES = {400, 403, 404, 409, 422}
+DOMAIN_STATUSES = {400, 403, 404, 409, 410, 422}
 T = TypeVar("T")
 
 
@@ -48,7 +51,7 @@ class Result:
 
 
 @pytest.mark.live
-def test_all_46_real_endpoints() -> None:
+def test_all_real_endpoints() -> None:
     names = ("OPENAPI_AK", "OPENAPI_SK", "LINGYA_LIVE_BASE_URL", "LINGYA_LIVE_CHANNEL_ID")
     if any(not os.getenv(name) for name in names):
         pytest.skip("live environment variables are required")
@@ -61,6 +64,84 @@ def test_all_46_real_endpoints() -> None:
         coverage = Coverage(user)
         first = coverage.success("POST", "", lambda: user.chat.create_chat(AiChatInput(query="仅回复英文 OK")), 201)
         try:
+            coverage.success("POST", "/presign", user.configuration.create_open_api_token, 201)
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}",
+                lambda: user.conversations.get_conversation_summary(first.conversation_id),
+            )
+            group = coverage.success(
+                "POST",
+                "/conversation-groups",
+                lambda: user.conversations.create_conversation_group(
+                    ConversationGroupNameInput(name="SDK contract group")
+                ),
+                201,
+            )
+            try:
+                coverage.success("GET", "/conversation-groups", user.conversations.list_conversation_groups)
+                coverage.success(
+                    "PATCH",
+                    "/conversation-groups/{groupId}",
+                    lambda: user.conversations.rename_conversation_group(
+                        group.id, ConversationGroupNameInput(name="SDK renamed group")
+                    ),
+                )
+                coverage.success(
+                    "PATCH",
+                    f"/conversations/{first.conversation_id}/group",
+                    lambda: user.conversations.move_conversation_to_group(
+                        first.conversation_id, UpdateConversationGroupInput(groupId=group.id)
+                    ),
+                )
+            finally:
+                coverage.success(
+                    "DELETE",
+                    "/conversation-groups/{groupId}",
+                    lambda: user.conversations.delete_conversation_group(group.id),
+                )
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}/messages/sync",
+                lambda: user.messages.sync_conversation_messages(first.conversation_id),
+            )
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}/messages/{first.message_id}/plan/status",
+                lambda: user.interactions.get_message_plan_status(first.conversation_id, first.message_id),
+            )
+            coverage.success(
+                "GET", f"/conversations/{first.conversation_id}/goal", lambda: user.chat.get_goal(first.conversation_id)
+            )
+            coverage.success(
+                "GET",
+                f"/conversations/{first.conversation_id}/goal/history",
+                lambda: user.chat.get_goal_history(first.conversation_id),
+            )
+            missing_goal = AgentGoalRefInput(goalId="missing-goal", goalRevision=1)
+            coverage.domain(
+                "PATCH",
+                f"/conversations/{first.conversation_id}/goal",
+                lambda: user.chat.edit_goal(
+                    first.conversation_id,
+                    EditAgentGoalInput(goalId="missing-goal", goalRevision=1, objective="Missing goal"),
+                ),
+            )
+            coverage.domain(
+                "POST",
+                f"/conversations/{first.conversation_id}/goal/pause",
+                lambda: user.chat.pause_goal(first.conversation_id, missing_goal),
+            )
+            coverage.domain(
+                "POST",
+                f"/conversations/{first.conversation_id}/goal/resume",
+                lambda: user.chat.resume_goal(first.conversation_id, missing_goal),
+            )
+            coverage.domain(
+                "POST",
+                f"/conversations/{first.conversation_id}/goal/clear",
+                lambda: user.chat.clear_goal(first.conversation_id, missing_goal),
+            )
             coverage.success("GET", "/config", user.configuration.get_agents_config)
             events = list(
                 user.chat.stream_chat_events(first.conversation_id, AiChatStreamInput(messageId=first.message_id))
@@ -189,22 +270,6 @@ def test_all_46_real_endpoints() -> None:
                 f"/conversations/{first.conversation_id}/messages/{first.message_id}/queue",
                 lambda: user.messages.cancel_queued_message(first.conversation_id, first.message_id),
             )
-            share = coverage.success(
-                "POST",
-                f"/conversations/{first.conversation_id}/shares",
-                lambda: user.conversations.create_conversation_share(first.conversation_id, ConversationShareInput()),
-                201,
-            )
-            coverage.success(
-                "GET",
-                f"/conversations/{first.conversation_id}/shares",
-                lambda: user.conversations.list_conversation_shares(first.conversation_id),
-            )
-            coverage.success(
-                "DELETE",
-                f"/conversations/{first.conversation_id}/shares/{share.share_id}",
-                lambda: user.conversations.revoke_conversation_share(first.conversation_id, share.share_id),
-            )
             coverage.success(
                 "POST",
                 "/plan/approve",
@@ -323,7 +388,7 @@ def test_all_46_real_endpoints() -> None:
                 )
             finally:
                 coverage.write_report()
-        assert len(coverage.seen) == 52
+        assert len(coverage.seen) == 64
         assert sorted(coverage.seen) == sorted(published_endpoints())
 
 
@@ -378,11 +443,10 @@ def canonical_suffix(suffix: str) -> str:
     )
     for pattern, replacement in [
         (r"/async-tasks/(?!sync(?:/|$))[^/]+", "/async-tasks/{asyncTaskId}"),
-        (r"/subagents/[^/]+", "/subagents/{subagentTaskId}"),
-        (r"/messages/[^/]+", "/messages/{messageId}"),
+        (r"/subagents/(?!sync(?:/|$))[^/]+", "/subagents/{subagentTaskId}"),
+        (r"/messages/(?!sync(?:/|$))[^/]+", "/messages/{messageId}"),
         (r"/plan-intermediate-files/[^/]+", "/plan-intermediate-files/{fileId}"),
         (r"^/conversations/\{conversationId\}/files/[^/]+", "/conversations/{conversationId}/files/{fileId}"),
-        (r"/shares/[^/]+", "/shares/{shareId}"),
         (r"/sql-query-results/[^/]+", "/sql-query-results/{resultId}"),
         (r"^/plan/[^/]+/status$", "/plan/{planId}/status"),
         (r"^/user-input/[^/]+/status$", "/user-input/{questionId}/status"),

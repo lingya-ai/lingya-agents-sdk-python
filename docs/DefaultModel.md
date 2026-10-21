@@ -6,8 +6,8 @@ DefaultModel 的公开协议结构。 / Public contract for default model.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**key_group_id** | **int** | 字段 keyGroupId / key group id field。 | 
-**model** | **str** | 字段 model / model field。 | 
+**key_group_id** | **int** | 字段 keyGroupId / key group id field。 |
+**model** | **str** | 字段 model / model field。 |
 
 ## Example
 

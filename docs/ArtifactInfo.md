@@ -6,14 +6,14 @@ ArtifactInfo 的公开协议结构。 / Public contract for artifact info.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**file_id** | **int** | 文件 ID / file ID。 | 
-**file_size** | **int** | 字段 fileSize / file size field。 | 
-**file_name** | **str** | 文件名 / file name。 | 
-**mime_type** | **str** | MIME 类型 / MIME type。 | 
-**relative_path** | **str** | 字段 relativePath / relative path field。 | [optional] 
-**delivery_status** | **str** | 字段 deliveryStatus / delivery status field。 | 
-**issue_codes** | **List[str]** | 字段 issueCodes / issue codes field。 | 
-**recoverable** | **bool** | 字段 recoverable / recoverable field。 | 
+**file_id** | **int** | 文件 ID / file ID。 |
+**file_size** | **int** | 字段 fileSize / file size field。 |
+**file_name** | **str** | 文件名 / file name。 |
+**mime_type** | **str** | MIME 类型 / MIME type。 |
+**relative_path** | **str** | 字段 relativePath / relative path field。 | [optional]
+**delivery_status** | **str** | 字段 deliveryStatus / delivery status field。 |
+**issue_codes** | **List[str]** | 字段 issueCodes / issue codes field。 |
+**recoverable** | **bool** | 字段 recoverable / recoverable field。 |
 
 ## Example
 

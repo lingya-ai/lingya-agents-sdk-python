@@ -6,8 +6,8 @@ AiChatErrorBriefEvent 的公开协议结构。 / Public contract for ai chat err
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**message** | **str** | 消息正文 / message text。 | 
+**type** | **str** | 类型判别值 / type discriminator。 |
+**message** | **str** | 消息正文 / message text。 |
 
 ## Example
 

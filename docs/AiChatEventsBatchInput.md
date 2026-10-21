@@ -6,8 +6,8 @@ AiChatEventsBatchInput 的公开协议结构。 / Public contract for ai chat ev
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**conversation_id** | **str** | 会话 ID / conversation ID。 | 
-**message_ids** | **List[str]** | 字段 messageIds / message ids field。 | 
+**conversation_id** | **str** | 会话 ID / conversation ID。 |
+**message_ids** | **List[str]** | 字段 messageIds / message ids field。 |
 
 ## Example
 

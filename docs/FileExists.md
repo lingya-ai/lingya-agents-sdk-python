@@ -6,7 +6,7 @@ FileExists 的公开协议结构。 / Public contract for file exists.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**exists** | **bool** | 字段 exists / exists field。 | 
+**exists** | **bool** | 字段 exists / exists field。 |
 
 ## Example
 

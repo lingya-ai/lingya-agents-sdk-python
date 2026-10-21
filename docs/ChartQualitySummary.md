@@ -6,9 +6,9 @@ ChartQualitySummary 的公开协议结构。 / Public contract for chart quality
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**null_value_count** | **int** | 字段 nullValueCount / null value count field。 | 
-**null_value_columns** | **List[str]** | 字段 nullValueColumns / null value columns field。 | 
-**zero_filled_value_count** | **int** | 字段 zeroFilledValueCount / zero filled value count field。 | 
+**null_value_count** | **int** | 字段 nullValueCount / null value count field。 |
+**null_value_columns** | **List[str]** | 字段 nullValueColumns / null value columns field。 |
+**zero_filled_value_count** | **int** | 字段 zeroFilledValueCount / zero filled value count field。 |
 
 ## Example
 

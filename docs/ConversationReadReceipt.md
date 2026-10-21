@@ -6,14 +6,14 @@ ConversationReadReceipt 的公开协议结构。 / Public contract for conversat
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**conversation_id** | **str** | 会话 ID / conversation ID。 | 
-**execution_status** | **str** | 字段 executionStatus / execution status field。 | 
-**active_message_id** | **str** | 字段 activeMessageId / active message id field。 | [optional] 
-**execution_epoch** | **str** | 字段 executionEpoch / execution epoch field。 | [optional] 
-**execution_started_time** | **datetime** | 字段 executionStartedTime / execution started time field。 | [optional] 
-**latest_terminal_message_id** | **str** | 字段 latestTerminalMessageId / latest terminal message id field。 | [optional] 
-**latest_terminal_time** | **datetime** | 字段 latestTerminalTime / latest terminal time field。 | [optional] 
-**has_unread_completion** | **bool** | 字段 hasUnreadCompletion / has unread completion field。 | 
+**conversation_id** | **str** | 会话 ID / conversation ID。 |
+**execution_status** | **str** | 字段 executionStatus / execution status field。 |
+**active_message_id** | **str** | 字段 activeMessageId / active message id field。 | [optional]
+**execution_epoch** | **str** | 字段 executionEpoch / execution epoch field。 | [optional]
+**execution_started_time** | **datetime** | 字段 executionStartedTime / execution started time field。 | [optional]
+**latest_terminal_message_id** | **str** | 字段 latestTerminalMessageId / latest terminal message id field。 | [optional]
+**latest_terminal_time** | **datetime** | 字段 latestTerminalTime / latest terminal time field。 | [optional]
+**has_unread_completion** | **bool** | 字段 hasUnreadCompletion / has unread completion field。 |
 
 ## Example
 

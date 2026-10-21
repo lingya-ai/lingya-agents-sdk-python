@@ -6,9 +6,9 @@ AiChatCompactorWarningBriefEvent 的公开协议结构。 / Public contract for 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**level** | **str** | 字段 level / level field。 | 
-**warning** | **str** | 字段 warning / warning field。 | 
+**type** | **str** | 类型判别值 / type discriminator。 |
+**level** | **str** | 字段 level / level field。 |
+**warning** | **str** | 字段 warning / warning field。 |
 
 ## Example
 

@@ -6,9 +6,9 @@ GeneratePreSignedUrlOutput 的公开协议结构。 / Public contract for genera
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**support** | **bool** | 当前存储是否支持该操作 / whether the storage supports this operation。 | 
-**file_uk** | **str** | 字段 fileUk / file uk field。 | [optional] 
-**url** | **str** | 预签名 URL / presigned URL。 | [optional] 
+**support** | **bool** | 当前存储是否支持该操作 / whether the storage supports this operation。 |
+**file_uk** | **str** | 字段 fileUk / file uk field。 | [optional]
+**url** | **str** | 预签名 URL / presigned URL。 | [optional]
 
 ## Example
 

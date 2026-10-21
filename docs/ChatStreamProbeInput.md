@@ -6,7 +6,7 @@ ChatStreamProbeInput 的公开协议结构。 / Public contract for chat stream 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**probe_id** | **str** | 字段 probeId / probe id field。 | 
+**probe_id** | **str** | 字段 probeId / probe id field。 |
 
 ## Example
 

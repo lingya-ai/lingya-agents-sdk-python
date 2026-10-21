@@ -11,8 +11,13 @@ from typing import Literal
 from urllib.parse import quote
 
 from lingya_agents_sdk.events import AiChatBriefEvent
+from lingya_agents_sdk.lifecycle import DownloadResponse, RequestOptions
 from lingya_agents_sdk.models.agent_async_task_sync import AgentAsyncTaskSync
 from lingya_agents_sdk.models.agent_file import AgentFile
+from lingya_agents_sdk.models.agent_goal import AgentGoal
+from lingya_agents_sdk.models.agent_goal_history import AgentGoalHistory
+from lingya_agents_sdk.models.agent_goal_ref_input import AgentGoalRefInput
+from lingya_agents_sdk.models.agent_goal_view import AgentGoalView
 from lingya_agents_sdk.models.agents_config import AgentsConfig
 from lingya_agents_sdk.models.ai_chat_brief_event_list import AiChatBriefEventList
 from lingya_agents_sdk.models.ai_chat_events_batch import AiChatEventsBatch
@@ -31,24 +36,29 @@ from lingya_agents_sdk.models.conversation_activity_batch_input import Conversat
 from lingya_agents_sdk.models.conversation_activity_list import ConversationActivityList
 from lingya_agents_sdk.models.conversation_config import ConversationConfig
 from lingya_agents_sdk.models.conversation_context_usage import ConversationContextUsage
+from lingya_agents_sdk.models.conversation_group import ConversationGroup
+from lingya_agents_sdk.models.conversation_group_deleted import ConversationGroupDeleted
+from lingya_agents_sdk.models.conversation_group_list import ConversationGroupList
+from lingya_agents_sdk.models.conversation_group_name_input import ConversationGroupNameInput
 from lingya_agents_sdk.models.conversation_ids import ConversationIds
 from lingya_agents_sdk.models.conversation_message import ConversationMessage
 from lingya_agents_sdk.models.conversation_message_page import ConversationMessagePage
+from lingya_agents_sdk.models.conversation_message_sync import ConversationMessageSync
+from lingya_agents_sdk.models.conversation_metadata import ConversationMetadata
 from lingya_agents_sdk.models.conversation_read_receipt import ConversationReadReceipt
 from lingya_agents_sdk.models.conversation_read_receipt_input import ConversationReadReceiptInput
-from lingya_agents_sdk.models.conversation_share_created import ConversationShareCreated
-from lingya_agents_sdk.models.conversation_share_input import ConversationShareInput
-from lingya_agents_sdk.models.conversation_share_list import ConversationShareList
-from lingya_agents_sdk.models.conversation_share_revoked import ConversationShareRevoked
 from lingya_agents_sdk.models.conversation_stats import ConversationStats
 from lingya_agents_sdk.models.conversation_status_input import ConversationStatusInput
+from lingya_agents_sdk.models.conversation_summary import ConversationSummary
 from lingya_agents_sdk.models.conversation_summary_list import ConversationSummaryList
 from lingya_agents_sdk.models.conversation_title import ConversationTitle
 from lingya_agents_sdk.models.conversation_title_input import ConversationTitleInput
 from lingya_agents_sdk.models.create_file_input import CreateFileInput
+from lingya_agents_sdk.models.edit_agent_goal_input import EditAgentGoalInput
 from lingya_agents_sdk.models.file_exists import FileExists
 from lingya_agents_sdk.models.generate_pre_signed_url_input import GeneratePreSignedUrlInput
 from lingya_agents_sdk.models.generate_pre_signed_url_output import GeneratePreSignedUrlOutput
+from lingya_agents_sdk.models.open_api_token import OpenApiToken
 from lingya_agents_sdk.models.operation_result import OperationResult
 from lingya_agents_sdk.models.plan_approval_input import PlanApprovalInput
 from lingya_agents_sdk.models.plan_status import PlanStatus
@@ -60,9 +70,11 @@ from lingya_agents_sdk.models.subagent_task import SubagentTask
 from lingya_agents_sdk.models.subagent_task_page import SubagentTaskPage
 from lingya_agents_sdk.models.subagent_task_result import SubagentTaskResult
 from lingya_agents_sdk.models.subagent_task_sync import SubagentTaskSync
+from lingya_agents_sdk.models.update_conversation_group_input import UpdateConversationGroupInput
 from lingya_agents_sdk.models.user_input_answer_input import UserInputAnswerInput
 from lingya_agents_sdk.models.user_input_status import UserInputStatus
 from lingya_agents_sdk.models.workspace_artifact_list import WorkspaceArtifactList
+from lingya_agents_sdk.subscription import ChatSubscription
 
 
 class ConfigurationApi:
@@ -73,6 +85,8 @@ class ConfigurationApi:
 
     def get_agents_config(
         self,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> AgentsConfig:
         """读取 Agent 配置 / Get Agent configuration
 
@@ -82,11 +96,13 @@ class ConfigurationApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/config"
-        return self._client._request_model("GET", suffix, AgentsConfig, None, ())
+        return self._client.with_request_options(request_options)._request_model("GET", suffix, AgentsConfig, None, ())
 
     def get_conversation_config(
         self,
         conversation_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> ConversationConfig:
         """读取会话配置 / Get conversation configuration
 
@@ -97,7 +113,24 @@ class ConfigurationApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/config"
-        return self._client._request_model("GET", suffix, ConversationConfig, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, ConversationConfig, None, ()
+        )
+
+    def create_open_api_token(
+        self,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> OpenApiToken:
+        """签发一次性短期渠道令牌 / Create a single-use short-lived channel token
+
+        Args:
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = "/presign"
+        return self._client.with_request_options(request_options)._request_model("POST", suffix, OpenApiToken, None, ())
 
 
 class ChatApi:
@@ -109,6 +142,8 @@ class ChatApi:
     def create_chat(
         self,
         input: AiChatInput,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> AiChatSubmission:
         """创建会话并提交消息 / Create a conversation and submit a message
 
@@ -119,12 +154,16 @@ class ChatApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = ""
-        return self._client._request_model("POST", suffix, AiChatSubmission, input, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "POST", suffix, AiChatSubmission, input, ()
+        )
 
     def continue_chat(
         self,
         conversation_id: str,
         input: AiChatInput,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> AiChatSubmission:
         """向已有会话提交消息 / Submit a message to an existing conversation
 
@@ -136,13 +175,17 @@ class ChatApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}"
-        return self._client._request_model("POST", suffix, AiChatSubmission, input, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "POST", suffix, AiChatSubmission, input, ()
+        )
 
     def stream_chat_events(
         self,
         conversation_id: str,
         input: AiChatStreamInput,
         request_id: str | None = None,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> Iterator[AiChatBriefEvent]:
         """订阅消息事件流 / Stream message events
 
@@ -155,12 +198,14 @@ class ChatApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/stream"
-        return self._client._stream_chat_events(suffix, input, request_id)
+        return self._client.with_request_options(request_options)._stream_chat_events(suffix, input, request_id)
 
     def probe_event_stream(
         self,
         input: ChatStreamProbeInput,
         request_id: str | None = None,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> Iterator[ChatStreamProbeEvent]:
         """探测 SSE 连接 / Probe the SSE connection
 
@@ -172,11 +217,13 @@ class ChatApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/stream-probe"
-        return self._client._probe_event_stream(suffix, input, request_id)
+        return self._client.with_request_options(request_options)._probe_event_stream(suffix, input, request_id)
 
     def interrupt_conversation(
         self,
         conversation_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> int:
         """中断会话执行 / Interrupt conversation execution
 
@@ -187,12 +234,14 @@ class ChatApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/interrupt"
-        return self._client._request_status("DELETE", suffix, None, ())
+        return self._client.with_request_options(request_options)._request_status("DELETE", suffix, None, ())
 
     def compact_conversation(
         self,
         conversation_id: str,
         force: bool | None = True,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> int:
         """压缩会话上下文 / Compact conversation context
 
@@ -207,7 +256,138 @@ class ChatApi:
         query: list[QueryParameter] = []
         if force is not None:
             query.append(QueryParameter("force", _query_text(force)))
-        return self._client._request_status("POST", suffix, None, query)
+        return self._client.with_request_options(request_options)._request_status("POST", suffix, None, query)
+
+    def get_goal(
+        self,
+        conversation_id: str,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> AgentGoalView:
+        """读取当前目标 / Get current goal
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/goal"
+        return self._client.with_request_options(request_options)._request_model("GET", suffix, AgentGoalView, None, ())
+
+    def edit_goal(
+        self,
+        conversation_id: str,
+        input: EditAgentGoalInput,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> AgentGoal:
+        """编辑目标 / Edit goal
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            input: 编辑目标 / Edit goal 的强类型请求体。 / Typed request body for editGoal.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/goal"
+        return self._client.with_request_options(request_options)._request_model("PATCH", suffix, AgentGoal, input, ())
+
+    def get_goal_history(
+        self,
+        conversation_id: str,
+        page: int | None = 0,
+        size: int | None = 20,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> AgentGoalHistory:
+        """查询目标历史 / Get goal history
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            page: 分页信息 / page metadata。
+            size: 单页记录数。 / Number of records per page.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/goal/history"
+        query: list[QueryParameter] = []
+        if page is not None:
+            query.append(QueryParameter("page", _query_text(page)))
+        if size is not None:
+            query.append(QueryParameter("size", _query_text(size)))
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, AgentGoalHistory, None, query
+        )
+
+    def pause_goal(
+        self,
+        conversation_id: str,
+        input: AgentGoalRefInput,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> AgentGoal:
+        """暂停目标 / Pause goal
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            input: 暂停目标 / Pause goal 的强类型请求体。 / Typed request body for pauseGoal.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/goal/pause"
+        return self._client.with_request_options(request_options)._request_model("POST", suffix, AgentGoal, input, ())
+
+    def resume_goal(
+        self,
+        conversation_id: str,
+        input: AgentGoalRefInput,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> AgentGoal:
+        """恢复目标 / Resume goal
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            input: 恢复目标 / Resume goal 的强类型请求体。 / Typed request body for resumeGoal.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/goal/resume"
+        return self._client.with_request_options(request_options)._request_model("POST", suffix, AgentGoal, input, ())
+
+    def clear_goal(
+        self,
+        conversation_id: str,
+        input: AgentGoalRefInput,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> AgentGoal:
+        """清除目标 / Clear goal
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            input: 清除目标 / Clear goal 的强类型请求体。 / Typed request body for clearGoal.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/goal/clear"
+        return self._client.with_request_options(request_options)._request_model("POST", suffix, AgentGoal, input, ())
+
+    def subscribe_chat_events(
+        self,
+        conversation_id: str,
+        input: AiChatStreamInput,
+        transport: Literal["sse", "websocket"] = "sse",
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> ChatSubscription:
+        return ChatSubscription(self._client, conversation_id, input, transport, request_options)
 
 
 class ConversationsApi:
@@ -219,6 +399,8 @@ class ConversationsApi:
     def delete_conversation(
         self,
         conversation_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> int:
         """删除会话 / Delete a conversation
 
@@ -229,11 +411,32 @@ class ConversationsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}"
-        return self._client._request_status("DELETE", suffix, None, ())
+        return self._client.with_request_options(request_options)._request_status("DELETE", suffix, None, ())
+
+    def get_conversation_summary(
+        self,
+        conversation_id: str,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> ConversationSummary:
+        """读取会话摘要 / Get conversation summary
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}"
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, ConversationSummary, None, ()
+        )
 
     def get_conversation_context_usage(
         self,
         conversation_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> ConversationContextUsage:
         """读取上下文占用 / Get context usage
 
@@ -244,28 +447,30 @@ class ConversationsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/context-usage"
-        return self._client._request_model("GET", suffix, ConversationContextUsage, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, ConversationContextUsage, None, ()
+        )
 
     def list_conversations(
         self,
-        current: int | None = None,
+        current: int | None = 0,
         size: int | None = 30,
-        order_by: Sequence[str] | None = None,
-        order_direction: Literal["ASC", "DESC"] | None = "ASC",
-        order_null_handling: Literal["NATIVE", "NULLS_FIRST", "NULLS_LAST"] | None = "NATIVE",
+        status: Literal["ACTIVE", "ARCHIVED", "ALL"] | None = "ACTIVE",
         keyword: str | None = None,
-        status: str | None = None,
+        group_filter: Literal["ALL", "UNGROUPED", "GROUP"] | None = "ALL",
+        group_id: int | None = None,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> ConversationSummaryList:
         """分页查询会话 / List conversations
 
         Args:
             current: 从 0 开始的页码。 / Zero-based page index.
             size: 单页记录数。 / Number of records per page.
-            order_by: 排序字段列表。 / Ordered list of sort fields.
-            order_direction: 排序方向。 / Sort direction.
-            order_null_handling: 空值排序策略。 / Null ordering strategy.
-            keyword: 标题或正文检索关键字。 / Title or content search keyword.
             status: 状态过滤条件。 / Status filter.
+            keyword: 标题或正文检索关键字。 / Title or content search keyword.
+            group_filter: 字段 groupFilter / group filter field。
+            group_id: groupFilter 为 GROUP 时必填。 / Required when groupFilter is GROUP.
 
         Returns:
             契约定义的强类型响应。 / The typed response defined by the contract.
@@ -276,20 +481,22 @@ class ConversationsApi:
             query.append(QueryParameter("current", _query_text(current)))
         if size is not None:
             query.append(QueryParameter("size", _query_text(size)))
-        if order_by is not None:
-            query.extend(QueryParameter("orderBy", str(value)) for value in order_by)
-        if order_direction is not None:
-            query.append(QueryParameter("orderDirection", _query_text(order_direction)))
-        if order_null_handling is not None:
-            query.append(QueryParameter("orderNullHandling", _query_text(order_null_handling)))
-        if keyword is not None:
-            query.append(QueryParameter("keyword", _query_text(keyword)))
         if status is not None:
             query.append(QueryParameter("status", _query_text(status)))
-        return self._client._request_model("GET", suffix, ConversationSummaryList, None, query)
+        if keyword is not None:
+            query.append(QueryParameter("keyword", _query_text(keyword)))
+        if group_filter is not None:
+            query.append(QueryParameter("groupFilter", _query_text(group_filter)))
+        if group_id is not None:
+            query.append(QueryParameter("groupId", _query_text(group_id)))
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, ConversationSummaryList, None, query
+        )
 
     def list_active_conversations(
         self,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> ConversationIds:
         """查询活动会话 / List active conversations
 
@@ -299,10 +506,14 @@ class ConversationsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/conversations/active"
-        return self._client._request_model("GET", suffix, ConversationIds, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, ConversationIds, None, ()
+        )
 
     def list_unread_conversations(
         self,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> ConversationIds:
         """查询未读会话 / List unread conversations
 
@@ -312,11 +523,15 @@ class ConversationsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/conversations/unread"
-        return self._client._request_model("GET", suffix, ConversationIds, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, ConversationIds, None, ()
+        )
 
     def query_conversation_activities(
         self,
         input: ConversationActivityBatchInput,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> ConversationActivityList:
         """批量查询会话活动 / Query conversation activities
 
@@ -327,12 +542,16 @@ class ConversationsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/conversations/activity/query"
-        return self._client._request_model("POST", suffix, ConversationActivityList, input, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "POST", suffix, ConversationActivityList, input, ()
+        )
 
     def mark_conversation_read(
         self,
         conversation_id: str,
         input: ConversationReadReceiptInput,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> ConversationReadReceipt:
         """推进会话已读游标 / Mark a conversation as read
 
@@ -344,10 +563,14 @@ class ConversationsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/read-receipt"
-        return self._client._request_model("PUT", suffix, ConversationReadReceipt, input, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "PUT", suffix, ConversationReadReceipt, input, ()
+        )
 
     def get_conversation_stats(
         self,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> ConversationStats:
         """读取会话统计 / Get conversation statistics
 
@@ -357,11 +580,15 @@ class ConversationsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/conversations/stats"
-        return self._client._request_model("GET", suffix, ConversationStats, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, ConversationStats, None, ()
+        )
 
     def get_conversation_title(
         self,
         conversation_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> ConversationTitle:
         """读取会话标题 / Get conversation title
 
@@ -372,13 +599,17 @@ class ConversationsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/title"
-        return self._client._request_model("GET", suffix, ConversationTitle, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, ConversationTitle, None, ()
+        )
 
     def update_conversation_title(
         self,
         conversation_id: str,
         input: ConversationTitleInput,
-    ) -> int:
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> ConversationMetadata:
         """更新会话标题 / Update conversation title
 
         Args:
@@ -389,12 +620,16 @@ class ConversationsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/title"
-        return self._client._request_status("PATCH", suffix, input, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "PATCH", suffix, ConversationMetadata, input, ()
+        )
 
     def update_conversation_status(
         self,
         conversation_id: str,
         input: ConversationStatusInput,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> int:
         """更新会话状态 / Update conversation status
 
@@ -406,56 +641,104 @@ class ConversationsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/status"
-        return self._client._request_status("PATCH", suffix, input, ())
+        return self._client.with_request_options(request_options)._request_status("PATCH", suffix, input, ())
 
-    def list_conversation_shares(
+    def list_conversation_groups(
         self,
-        conversation_id: str,
-    ) -> ConversationShareList:
-        """查询会话分享 / List conversation shares
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> ConversationGroupList:
+        """查询会话分组 / List conversation groups
 
         Args:
-            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
 
         Returns:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
-        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/shares"
-        return self._client._request_model("GET", suffix, ConversationShareList, None, ())
+        suffix = "/conversation-groups"
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, ConversationGroupList, None, ()
+        )
 
-    def create_conversation_share(
+    def create_conversation_group(
         self,
-        conversation_id: str,
-        input: ConversationShareInput,
-    ) -> ConversationShareCreated:
-        """创建会话分享 / Create a conversation share
+        input: ConversationGroupNameInput,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> ConversationGroup:
+        """创建会话分组 / Create conversation group
 
         Args:
-            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
-            input: 创建会话分享 / Create a conversation share 的强类型请求体。 / Typed request body for createConversationShare.
+            input: 创建会话分组 / Create conversation group 的强类型请求体。 / Typed request body for createConversationGroup.
 
         Returns:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
-        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/shares"
-        return self._client._request_model("POST", suffix, ConversationShareCreated, input, ())
+        suffix = "/conversation-groups"
+        return self._client.with_request_options(request_options)._request_model(
+            "POST", suffix, ConversationGroup, input, ()
+        )
 
-    def revoke_conversation_share(
+    def rename_conversation_group(
         self,
-        conversation_id: str,
-        share_id: int,
-    ) -> ConversationShareRevoked:
-        """撤销会话分享 / Revoke a conversation share
+        group_id: int,
+        input: ConversationGroupNameInput,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> ConversationGroup:
+        """重命名会话分组 / Rename conversation group
 
         Args:
-            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
-            share_id: 会话分享记录 ID。 / Conversation-share record ID.
+            group_id: 字段 groupId / group id field。
+            input: 重命名会话分组 / Rename conversation group 的强类型请求体。 / Typed request body for renameConversationGroup.
 
         Returns:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
-        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/shares/{quote(str(share_id), safe='')}"
-        return self._client._request_model("DELETE", suffix, ConversationShareRevoked, None, ())
+        suffix = f"/conversation-groups/{quote(str(group_id), safe='')}"
+        return self._client.with_request_options(request_options)._request_model(
+            "PATCH", suffix, ConversationGroup, input, ()
+        )
+
+    def delete_conversation_group(
+        self,
+        group_id: int,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> ConversationGroupDeleted:
+        """删除会话分组 / Delete conversation group
+
+        Args:
+            group_id: 字段 groupId / group id field。
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversation-groups/{quote(str(group_id), safe='')}"
+        return self._client.with_request_options(request_options)._request_model(
+            "DELETE", suffix, ConversationGroupDeleted, None, ()
+        )
+
+    def move_conversation_to_group(
+        self,
+        conversation_id: str,
+        input: UpdateConversationGroupInput,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> ConversationMetadata:
+        """移动会话分组 / Move conversation to group
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            input: 移动会话分组 / Move conversation to group 的强类型请求体。 / Typed request body for moveConversationToGroup.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/group"
+        return self._client.with_request_options(request_options)._request_model(
+            "PATCH", suffix, ConversationMetadata, input, ()
+        )
 
 
 class SqlApi:
@@ -470,6 +753,8 @@ class SqlApi:
         result_id: str,
         current: int | None = 0,
         size: int | None = 100,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> SqlQueryResultPage:
         """分页读取 SQL 结果 / Get paged SQL results
 
@@ -490,12 +775,16 @@ class SqlApi:
             query.append(QueryParameter("current", _query_text(current)))
         if size is not None:
             query.append(QueryParameter("size", _query_text(size)))
-        return self._client._request_model("GET", suffix, SqlQueryResultPage, None, query)
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, SqlQueryResultPage, None, query
+        )
 
     def get_sql_query_chart_data(
         self,
         conversation_id: str,
         result_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> SqlChartDataset:
         """读取 SQL 图表数据 / Get SQL chart data
 
@@ -507,7 +796,9 @@ class SqlApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/sql-query-results/{quote(str(result_id), safe='')}/chart-data"
-        return self._client._request_model("GET", suffix, SqlChartDataset, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, SqlChartDataset, None, ()
+        )
 
     def export_sql_query_result(
         self,
@@ -515,6 +806,8 @@ class SqlApi:
         result_id: str,
         format: Literal["CSV", "XLSX"],
         accept: str | None = None,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> bytes:
         """导出 SQL 结果 / Export SQL results
 
@@ -530,7 +823,32 @@ class SqlApi:
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/sql-query-results/{quote(str(result_id), safe='')}/export"
         query: list[QueryParameter] = []
         query.append(QueryParameter("format", _query_text(format)))
-        return self._client._request_bytes("GET", suffix, query, accept)
+        return self._client.with_request_options(request_options)._request_bytes("GET", suffix, query, accept)
+
+    def export_sql_query_result_with_metadata(
+        self,
+        conversation_id: str,
+        result_id: str,
+        format: Literal["CSV", "XLSX"],
+        accept: str | None = None,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> DownloadResponse:
+        """导出 SQL 结果 / Export SQL results
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            result_id: SQL 查询结果 ID。 / SQL query-result ID.
+            format: 导出格式。 / Export format.
+            accept: 期望的导出媒体类型。 / Requested export media type.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/sql-query-results/{quote(str(result_id), safe='')}/export"
+        query: list[QueryParameter] = []
+        query.append(QueryParameter("format", _query_text(format)))
+        return self._client.with_request_options(request_options)._download("GET", suffix, query, accept)
 
 
 class MessagesApi:
@@ -548,6 +866,8 @@ class MessagesApi:
         order_direction: Literal["ASC", "DESC"] | None = "ASC",
         order_null_handling: Literal["NATIVE", "NULLS_FIRST", "NULLS_LAST"] | None = "NATIVE",
         keyword: str | None = None,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> ConversationMessagePage:
         """分页查询会话消息 / List conversation messages
 
@@ -577,12 +897,16 @@ class MessagesApi:
             query.append(QueryParameter("orderNullHandling", _query_text(order_null_handling)))
         if keyword is not None:
             query.append(QueryParameter("keyword", _query_text(keyword)))
-        return self._client._request_model("GET", suffix, ConversationMessagePage, None, query)
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, ConversationMessagePage, None, query
+        )
 
     def get_conversation_message(
         self,
         conversation_id: str,
         message_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> ConversationMessage:
         """读取单条会话消息 / Get a conversation message
 
@@ -594,7 +918,9 @@ class MessagesApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/messages/{quote(str(message_id), safe='')}"
-        return self._client._request_model("GET", suffix, ConversationMessage, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, ConversationMessage, None, ()
+        )
 
     def list_conversation_async_tasks(
         self,
@@ -606,6 +932,8 @@ class MessagesApi:
         order_null_handling: Literal["NATIVE", "NULLS_FIRST", "NULLS_LAST"] | None = "NATIVE",
         keyword: str | None = None,
         status: Sequence[str] | None = None,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> AsyncTaskPage:
         """分页查询异步任务 / List asynchronous tasks
 
@@ -638,13 +966,17 @@ class MessagesApi:
             query.append(QueryParameter("keyword", _query_text(keyword)))
         if status is not None:
             query.extend(QueryParameter("status", str(value)) for value in status)
-        return self._client._request_model("GET", suffix, AsyncTaskPage, None, query)
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, AsyncTaskPage, None, query
+        )
 
     def sync_conversation_async_tasks(
         self,
         conversation_id: str,
         after_message_id: str | None = None,
         size: int | None = 50,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> AgentAsyncTaskSync:
         """增量同步异步任务 / Sync asynchronous task updates
 
@@ -662,12 +994,16 @@ class MessagesApi:
             query.append(QueryParameter("afterMessageId", _query_text(after_message_id)))
         if size is not None:
             query.append(QueryParameter("size", _query_text(size)))
-        return self._client._request_model("GET", suffix, AgentAsyncTaskSync, None, query)
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, AgentAsyncTaskSync, None, query
+        )
 
     def get_conversation_async_task(
         self,
         conversation_id: str,
         async_task_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> AsyncTask:
         """读取异步任务 / Get an asynchronous task
 
@@ -681,7 +1017,7 @@ class MessagesApi:
         suffix = (
             f"/conversations/{quote(str(conversation_id), safe='')}/async-tasks/{quote(str(async_task_id), safe='')}"
         )
-        return self._client._request_model("GET", suffix, AsyncTask, None, ())
+        return self._client.with_request_options(request_options)._request_model("GET", suffix, AsyncTask, None, ())
 
     def list_conversation_subagents(
         self,
@@ -693,6 +1029,8 @@ class MessagesApi:
         order_null_handling: Literal["NATIVE", "NULLS_FIRST", "NULLS_LAST"] | None = "NATIVE",
         keyword: str | None = None,
         status: Sequence[str] | None = None,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> SubagentTaskPage:
         """分页查询子 Agent 任务 / List subagent tasks
 
@@ -725,13 +1063,17 @@ class MessagesApi:
             query.append(QueryParameter("keyword", _query_text(keyword)))
         if status is not None:
             query.extend(QueryParameter("status", str(value)) for value in status)
-        return self._client._request_model("GET", suffix, SubagentTaskPage, None, query)
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, SubagentTaskPage, None, query
+        )
 
     def sync_conversation_subagents(
         self,
         conversation_id: str,
         cursor: str | None = None,
         size: int | None = 50,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> SubagentTaskSync:
         """增量同步子 Agent 状态 / Sync subagent task updates
 
@@ -749,12 +1091,16 @@ class MessagesApi:
             query.append(QueryParameter("cursor", _query_text(cursor)))
         if size is not None:
             query.append(QueryParameter("size", _query_text(size)))
-        return self._client._request_model("GET", suffix, SubagentTaskSync, None, query)
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, SubagentTaskSync, None, query
+        )
 
     def get_conversation_subagent(
         self,
         conversation_id: str,
         subagent_task_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> SubagentTask:
         """读取子 Agent 状态 / Get a subagent task
 
@@ -768,12 +1114,14 @@ class MessagesApi:
         suffix = (
             f"/conversations/{quote(str(conversation_id), safe='')}/subagents/{quote(str(subagent_task_id), safe='')}"
         )
-        return self._client._request_model("GET", suffix, SubagentTask, None, ())
+        return self._client.with_request_options(request_options)._request_model("GET", suffix, SubagentTask, None, ())
 
     def cancel_conversation_subagent(
         self,
         conversation_id: str,
         subagent_task_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> SubagentTask:
         """取消子 Agent 任务 / Cancel a subagent task
 
@@ -787,12 +1135,16 @@ class MessagesApi:
         suffix = (
             f"/conversations/{quote(str(conversation_id), safe='')}/subagents/{quote(str(subagent_task_id), safe='')}"
         )
-        return self._client._request_model("DELETE", suffix, SubagentTask, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "DELETE", suffix, SubagentTask, None, ()
+        )
 
     def get_conversation_subagent_result(
         self,
         conversation_id: str,
         subagent_task_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> SubagentTaskResult:
         """读取子 Agent 结果 / Get a subagent result
 
@@ -804,12 +1156,16 @@ class MessagesApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/subagents/{quote(str(subagent_task_id), safe='')}/result"
-        return self._client._request_model("GET", suffix, SubagentTaskResult, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, SubagentTaskResult, None, ()
+        )
 
     def cancel_queued_message(
         self,
         conversation_id: str,
         message_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> ConversationMessage:
         """取消排队消息 / Cancel a queued message
 
@@ -823,7 +1179,37 @@ class MessagesApi:
         suffix = (
             f"/conversations/{quote(str(conversation_id), safe='')}/messages/{quote(str(message_id), safe='')}/queue"
         )
-        return self._client._request_model("DELETE", suffix, ConversationMessage, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "DELETE", suffix, ConversationMessage, None, ()
+        )
+
+    def sync_conversation_messages(
+        self,
+        conversation_id: str,
+        after_message_id: str | None = None,
+        size: int | None = 50,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> ConversationMessageSync:
+        """增量同步消息 / Sync conversation messages
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            after_message_id: 通知消息同步游标。 / Notification-message sync cursor.
+            size: 单页记录数。 / Number of records per page.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/messages/sync"
+        query: list[QueryParameter] = []
+        if after_message_id is not None:
+            query.append(QueryParameter("afterMessageId", _query_text(after_message_id)))
+        if size is not None:
+            query.append(QueryParameter("size", _query_text(size)))
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, ConversationMessageSync, None, query
+        )
 
 
 class EventsApi:
@@ -836,6 +1222,8 @@ class EventsApi:
         self,
         conversation_id: str,
         message_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> AiChatBriefEventList:
         """读取消息事件 / Get message events
 
@@ -850,11 +1238,15 @@ class EventsApi:
         query: list[QueryParameter] = []
         query.append(QueryParameter("conversationId", _query_text(conversation_id)))
         query.append(QueryParameter("messageId", _query_text(message_id)))
-        return self._client._request_model("GET", suffix, AiChatBriefEventList, None, query)
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, AiChatBriefEventList, None, query
+        )
 
     def get_chat_events_batch(
         self,
         input: AiChatEventsBatchInput,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> AiChatEventsBatch:
         """批量读取消息事件 / Get message events in batch
 
@@ -865,7 +1257,9 @@ class EventsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/events/batch"
-        return self._client._request_model("POST", suffix, AiChatEventsBatch, input, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "POST", suffix, AiChatEventsBatch, input, ()
+        )
 
 
 class InteractionsApi:
@@ -877,6 +1271,8 @@ class InteractionsApi:
     def approve_plan(
         self,
         input: PlanApprovalInput,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> OperationResult:
         """提交计划审批 / Submit plan approval
 
@@ -887,11 +1283,15 @@ class InteractionsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/plan/approve"
-        return self._client._request_model("POST", suffix, OperationResult, input, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "POST", suffix, OperationResult, input, ()
+        )
 
     def get_plan_status(
         self,
         plan_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> PlanStatus:
         """查询计划审批状态 / Get plan approval status
 
@@ -902,13 +1302,15 @@ class InteractionsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/plan/{quote(str(plan_id), safe='')}/status"
-        return self._client._request_model("GET", suffix, PlanStatus, None, ())
+        return self._client.with_request_options(request_options)._request_model("GET", suffix, PlanStatus, None, ())
 
     def get_user_input_status(
         self,
         question_id: str,
         conversation_id: str,
         message_id: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> UserInputStatus:
         """查询用户问答状态 / Get user-input status
 
@@ -924,11 +1326,15 @@ class InteractionsApi:
         query: list[QueryParameter] = []
         query.append(QueryParameter("conversationId", _query_text(conversation_id)))
         query.append(QueryParameter("messageId", _query_text(message_id)))
-        return self._client._request_model("GET", suffix, UserInputStatus, None, query)
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, UserInputStatus, None, query
+        )
 
     def answer_user_input(
         self,
         input: UserInputAnswerInput,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> OperationResult:
         """提交用户回答 / Submit a user answer
 
@@ -939,7 +1345,28 @@ class InteractionsApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/user-input/answer"
-        return self._client._request_model("POST", suffix, OperationResult, input, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "POST", suffix, OperationResult, input, ()
+        )
+
+    def get_message_plan_status(
+        self,
+        conversation_id: str,
+        message_id: str,
+        *,
+        request_options: RequestOptions | None = None,
+    ) -> PlanStatus:
+        """查询消息计划审批状态 / Get message plan status
+
+        Args:
+            conversation_id: 会话 ID；必须属于当前外部用户。 / Conversation ID owned by the current external user.
+            message_id: 用户消息 ID；必须属于指定会话。 / User-message ID owned by the specified conversation.
+
+        Returns:
+            契约定义的强类型响应。 / The typed response defined by the contract.
+        """
+        suffix = f"/conversations/{quote(str(conversation_id), safe='')}/messages/{quote(str(message_id), safe='')}/plan/status"
+        return self._client.with_request_options(request_options)._request_model("GET", suffix, PlanStatus, None, ())
 
 
 class FilesApi:
@@ -951,6 +1378,8 @@ class FilesApi:
     def create_pre_signed_upload(
         self,
         input: GeneratePreSignedUrlInput,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> GeneratePreSignedUrlOutput:
         """创建预签名上传地址 / Create a presigned upload URL
 
@@ -961,11 +1390,15 @@ class FilesApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/files/pre-signed-url/write"
-        return self._client._request_model("POST", suffix, GeneratePreSignedUrlOutput, input, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "POST", suffix, GeneratePreSignedUrlOutput, input, ()
+        )
 
     def confirm_pre_signed_upload(
         self,
         input: ConfirmUploadInput,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> AgentFile:
         """确认预签名上传 / Confirm a presigned upload
 
@@ -976,11 +1409,13 @@ class FilesApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/files/pre-signed-url/confirm"
-        return self._client._request_model("POST", suffix, AgentFile, input, ())
+        return self._client.with_request_options(request_options)._request_model("POST", suffix, AgentFile, input, ())
 
     def create_file_by_content_md5(
         self,
         input: CreateFileInput,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> AgentFile:
         """按 MD5 复用文件 / Reuse a file by MD5
 
@@ -991,11 +1426,13 @@ class FilesApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/files/contentMd5"
-        return self._client._request_model("POST", suffix, AgentFile, input, ())
+        return self._client.with_request_options(request_options)._request_model("POST", suffix, AgentFile, input, ())
 
     def file_exists_by_content_md5(
         self,
         content_md5: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> FileExists:
         """检查 MD5 文件是否存在 / Check file existence by MD5
 
@@ -1008,12 +1445,14 @@ class FilesApi:
         suffix = "/files/meta/contentMd5"
         query: list[QueryParameter] = []
         query.append(QueryParameter("contentMd5", _query_text(content_md5)))
-        return self._client._request_model("GET", suffix, FileExists, None, query)
+        return self._client.with_request_options(request_options)._request_model("GET", suffix, FileExists, None, query)
 
     def get_conversation_file_preview(
         self,
         conversation_id: str,
         file_id: int,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> PreSignedReadUrl:
         """创建会话文件预览地址 / Create a conversation file preview URL
 
@@ -1025,13 +1464,17 @@ class FilesApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/files/{quote(str(file_id), safe='')}/preview"
-        return self._client._request_model("GET", suffix, PreSignedReadUrl, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, PreSignedReadUrl, None, ()
+        )
 
     def get_plan_intermediate_file_preview(
         self,
         conversation_id: str,
         message_id: str,
         file_id: int,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> PreSignedReadUrl:
         """创建计划快照预览地址 / Create a plan snapshot preview URL
 
@@ -1044,7 +1487,9 @@ class FilesApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/messages/{quote(str(message_id), safe='')}/plan-intermediate-files/{quote(str(file_id), safe='')}/preview"
-        return self._client._request_model("GET", suffix, PreSignedReadUrl, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, PreSignedReadUrl, None, ()
+        )
 
 
 class KnowledgeApi:
@@ -1056,6 +1501,8 @@ class KnowledgeApi:
     def get_citation_metadata_batch(
         self,
         input: Sequence[ReturnedReference],
+        *,
+        request_options: RequestOptions | None = None,
     ) -> CitationMetadataList:
         """批量读取引用元数据 / Get citation metadata in batch
 
@@ -1066,12 +1513,16 @@ class KnowledgeApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = "/knowledge-bases/citations/metadata"
-        return self._client._request_model("POST", suffix, CitationMetadataList, input, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "POST", suffix, CitationMetadataList, input, ()
+        )
 
     def get_citation_metadata(
         self,
         citation_type: str,
         reference_id: int,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> CitationMetadata:
         """读取引用元数据 / Get citation metadata
 
@@ -1083,7 +1534,9 @@ class KnowledgeApi:
             契约定义的强类型响应。 / The typed response defined by the contract.
         """
         suffix = f"/knowledge-bases/citations/{quote(str(citation_type), safe='')}/{quote(str(reference_id), safe='')}/metadata"
-        return self._client._request_model("GET", suffix, CitationMetadata, None, ())
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, CitationMetadata, None, ()
+        )
 
 
 class WorkspaceApi:
@@ -1102,6 +1555,8 @@ class WorkspaceApi:
         order_null_handling: Literal["NATIVE", "NULLS_FIRST", "NULLS_LAST"] | None = "NATIVE",
         keyword: str | None = None,
         prefix: str | None = None,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> WorkspaceArtifactList:
         """分页查询工作区制品 / List workspace artifacts
 
@@ -1134,12 +1589,16 @@ class WorkspaceApi:
             query.append(QueryParameter("keyword", _query_text(keyword)))
         if prefix is not None:
             query.append(QueryParameter("prefix", _query_text(prefix)))
-        return self._client._request_model("GET", suffix, WorkspaceArtifactList, None, query)
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, WorkspaceArtifactList, None, query
+        )
 
     def get_workspace_file_preview(
         self,
         conversation_id: str,
         path: str,
+        *,
+        request_options: RequestOptions | None = None,
     ) -> PreSignedReadUrl:
         """创建工作区文件预览地址 / Create a workspace file preview URL
 
@@ -1153,7 +1612,9 @@ class WorkspaceApi:
         suffix = f"/conversations/{quote(str(conversation_id), safe='')}/workspace/files/preview"
         query: list[QueryParameter] = []
         query.append(QueryParameter("path", _query_text(path)))
-        return self._client._request_model("GET", suffix, PreSignedReadUrl, None, query)
+        return self._client.with_request_options(request_options)._request_model(
+            "GET", suffix, PreSignedReadUrl, None, query
+        )
 
 
 def _query_text(value: str | int | bool) -> str:

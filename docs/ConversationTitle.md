@@ -6,9 +6,9 @@ ConversationTitle 的公开协议结构。 / Public contract for conversation ti
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**conversation_id** | **str** | 会话 ID / conversation ID。 | 
-**title** | **str** | 标题 / title。 | [optional] 
-**title_state** | **str** | 字段 titleState / title state field。 | 
+**conversation_id** | **str** | 会话 ID / conversation ID。 |
+**title** | **str** | 标题 / title。 | [optional]
+**title_state** | **str** | 字段 titleState / title state field。 |
 
 ## Example
 

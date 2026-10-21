@@ -6,13 +6,13 @@ AiChatEndBriefEvent 的公开协议结构。 / Public contract for ai chat end b
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**execution_time_millis** | **int** | 字段 executionTimeMillis / execution time millis field。 | 
-**total_usage** | [**Usage**](Usage.md) | 字段 totalUsage / total usage field。 | 
-**message_context_usage_ratio** | **float** | 字段 messageContextUsageRatio / message context usage ratio field。 | [optional] 
-**context_window_usage** | [**ConversationContextUsage**](ConversationContextUsage.md) | 字段 contextWindowUsage / context window usage field。 | [optional] 
-**artifacts** | [**List[ArtifactInfo]**](ArtifactInfo.md) | 字段 artifacts / artifacts field。 | 
-**non_file_artifacts** | [**List[WorkspaceNonFileArtifact]**](WorkspaceNonFileArtifact.md) | 字段 nonFileArtifacts / non file artifacts field。 | 
+**type** | **str** | 类型判别值 / type discriminator。 |
+**execution_time_millis** | **int** | 字段 executionTimeMillis / execution time millis field。 |
+**total_usage** | [**Usage**](Usage.md) | 字段 totalUsage / total usage field。 |
+**message_context_usage_ratio** | **float** | 字段 messageContextUsageRatio / message context usage ratio field。 | [optional]
+**context_window_usage** | [**ConversationContextUsage**](ConversationContextUsage.md) | 字段 contextWindowUsage / context window usage field。 | [optional]
+**artifacts** | [**List[ArtifactInfo]**](ArtifactInfo.md) | 字段 artifacts / artifacts field。 |
+**non_file_artifacts** | [**List[WorkspaceNonFileArtifact]**](WorkspaceNonFileArtifact.md) | 字段 nonFileArtifacts / non file artifacts field。 |
 
 ## Example
 

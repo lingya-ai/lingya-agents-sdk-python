@@ -6,8 +6,8 @@ MathFormulaExtensionContent 的公开协议结构。 / Public contract for math 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**expression** | **str** | 字段 expression / expression field。 | 
-**variables** | [**List[VariableBinding]**](VariableBinding.md) | 字段 variables / variables field。 | [optional] 
+**expression** | **str** | 字段 expression / expression field。 |
+**variables** | [**List[VariableBinding]**](VariableBinding.md) | 字段 variables / variables field。 | [optional]
 
 ## Example
 

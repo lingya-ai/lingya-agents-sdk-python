@@ -6,11 +6,11 @@ MediaAttachment 的公开协议结构。 / Public contract for media attachment.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**file_id** | **int** | 文件 ID / file ID。 | 
-**path** | **str** | 字段 path / path field。 | 
-**file_size** | **int** | 字段 fileSize / file size field。 | 
-**file_name** | **str** | 文件名 / file name。 | 
-**mime_type** | **str** | MIME 类型 / MIME type。 | 
+**file_id** | **int** | 文件 ID / file ID。 |
+**path** | **str** | 字段 path / path field。 |
+**file_size** | **int** | 字段 fileSize / file size field。 |
+**file_name** | **str** | 文件名 / file name。 |
+**mime_type** | **str** | MIME 类型 / MIME type。 |
 
 ## Example
 

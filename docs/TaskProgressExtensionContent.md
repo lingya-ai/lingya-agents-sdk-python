@@ -6,16 +6,16 @@ TaskProgressExtensionContent 的公开协议结构。 / Public contract for task
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**action** | **str** | 字段 action / action field。 | 
-**current_task_id** | **str** | 字段 currentTaskId / current task id field。 | [optional] 
-**current_task_status** | **str** | 字段 currentTaskStatus / current task status field。 | [optional] 
-**archived** | **bool** | 字段 archived / archived field。 | 
-**total** | **int** | 字段 total / total field。 | 
-**pending** | **int** | 字段 pending / pending field。 | 
-**in_progress** | **int** | 字段 inProgress / in progress field。 | 
-**completed** | **int** | 字段 completed / completed field。 | 
-**progress_percent** | **int** | 字段 progressPercent / progress percent field。 | 
-**tasks** | [**List[TaskSummary]**](TaskSummary.md) | 字段 tasks / tasks field。 | 
+**action** | **str** | 字段 action / action field。 |
+**current_task_id** | **str** | 字段 currentTaskId / current task id field。 | [optional]
+**current_task_status** | **str** | 字段 currentTaskStatus / current task status field。 | [optional]
+**archived** | **bool** | 字段 archived / archived field。 |
+**total** | **int** | 字段 total / total field。 |
+**pending** | **int** | 字段 pending / pending field。 |
+**in_progress** | **int** | 字段 inProgress / in progress field。 |
+**completed** | **int** | 字段 completed / completed field。 |
+**progress_percent** | **int** | 字段 progressPercent / progress percent field。 |
+**tasks** | [**List[TaskSummary]**](TaskSummary.md) | 字段 tasks / tasks field。 |
 
 ## Example
 

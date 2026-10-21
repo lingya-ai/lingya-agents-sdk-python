@@ -16,10 +16,17 @@ from lingya_agents_sdk.client import (
     AgentsClient,
     AgentsUserClient,
     ApiError,
+    HmacAuth,
     OpenApiCredentials,
     QueryParameter,
+    TokenAuth,
+    TokenContext,
 )
 from lingya_agents_sdk.events import AiChatBriefEvent, ToolExtension, decode_ai_chat_brief_event, decode_tool_extension
+
+from .async_client import AsyncAgentsClient, AsyncAgentsUserClient, AsyncTokenAuth
+from .lifecycle import DownloadResponse, RequestOptions, is_cancellation
+from .subscription import AsyncChatSubscription, ChatSubscription
 
 LingyaAgentsClient = AgentsClient
 LingyaAgentsUserClient = AgentsUserClient
@@ -35,8 +42,17 @@ LingyaMessagesApi = MessagesApi
 LingyaSqlApi = SqlApi
 LingyaWorkspaceApi = WorkspaceApi
 
-__version__ = "0.4.0"
+__version__ = "0.7.0"
+
 __all__ = [
+    "AsyncChatSubscription",
+    "ChatSubscription",
+    "is_cancellation",
+    "AsyncAgentsUserClient",
+    "AsyncAgentsClient",
+    "AsyncTokenAuth",
+    "RequestOptions",
+    "DownloadResponse",
     "AgentsClient",
     "AgentsUserClient",
     "AiChatBriefEvent",
@@ -65,6 +81,9 @@ __all__ = [
     "LingyaWorkspaceApi",
     "LingyaApiError",
     "OpenApiCredentials",
+    "HmacAuth",
+    "TokenAuth",
+    "TokenContext",
     "QueryParameter",
     "ToolExtension",
     "decode_ai_chat_brief_event",

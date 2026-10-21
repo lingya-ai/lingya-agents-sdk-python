@@ -6,11 +6,11 @@ UserInputStatus 的公开协议结构。 / Public contract for user input status
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**pending** | **bool** | 字段 pending / pending field。 | 
-**question** | **str** | 字段 question / question field。 | [optional] 
-**question_details** | **str** | 字段 questionDetails / question details field。 | [optional] 
-**options** | **List[str]** | 字段 options / options field。 | [optional] 
-**multiple** | **bool** | 字段 multiple / multiple field。 | [optional] 
+**pending** | **bool** | 字段 pending / pending field。 |
+**question** | **str** | 字段 question / question field。 | [optional]
+**question_details** | **str** | 字段 questionDetails / question details field。 | [optional]
+**options** | **List[str]** | 字段 options / options field。 | [optional]
+**multiple** | **bool** | 字段 multiple / multiple field。 | [optional]
 
 ## Example
 

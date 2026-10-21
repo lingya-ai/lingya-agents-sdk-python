@@ -6,7 +6,7 @@ ConversationActivityList 的公开协议结构。 / Public contract for conversa
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**records** | [**List[ConversationActivity]**](ConversationActivity.md) | 记录列表 / records。 | 
+**records** | [**List[ConversationActivity]**](ConversationActivity.md) | 记录列表 / records。 |
 
 ## Example
 

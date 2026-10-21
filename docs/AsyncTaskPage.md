@@ -6,8 +6,8 @@ AsyncTaskPage 的公开协议结构。 / Public contract for async task page.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**records** | [**List[AsyncTask]**](AsyncTask.md) | 记录列表 / records。 | 
-**page** | [**PageInfo**](PageInfo.md) | 分页信息 / page metadata。 | 
+**records** | [**List[AsyncTask]**](AsyncTask.md) | 记录列表 / records。 |
+**page** | [**PageInfo**](PageInfo.md) | 分页信息 / page metadata。 |
 
 ## Example
 

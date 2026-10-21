@@ -6,12 +6,12 @@ WorkspaceNonFileArtifact 的公开协议结构。 / Public contract for workspac
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**artifact_id** | **str** | 字段 artifactId / artifact id field。 | 
-**kind** | **str** | 字段 kind / kind field。 | 
-**title** | **str** | 标题 / title。 | 
-**description** | **str** | 可读说明 / human-readable description。 | [optional] 
-**last_update_time** | **datetime** | 最后更新时间 / last update time。 | 
-**preview_url** | **str** | 字段 previewUrl / preview url field。 | [optional] 
+**artifact_id** | **int** | 字段 artifactId / artifact id field。 |
+**kind** | **str** | 字段 kind / kind field。 |
+**title** | **str** | 标题 / title。 |
+**description** | **str** | 可读说明 / human-readable description。 |
+**last_update_time** | **datetime** | 最后更新时间 / last update time。 |
+**preview_url** | **str** | 字段 previewUrl / preview url field。 | [optional]
 
 ## Example
 

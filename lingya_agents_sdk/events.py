@@ -12,8 +12,6 @@ from lingya_agents_sdk.models.ai_chat_end_brief_event import AiChatEndBriefEvent
 from lingya_agents_sdk.models.ai_chat_error_brief_event import AiChatErrorBriefEvent
 from lingya_agents_sdk.models.ai_chat_manual_interrupt_brief_event import AiChatManualInterruptBriefEvent
 from lingya_agents_sdk.models.ai_chat_message_brief_event import AiChatMessageBriefEvent
-from lingya_agents_sdk.models.ai_chat_request_brief_event import AiChatRequestBriefEvent
-from lingya_agents_sdk.models.ai_chat_response_brief_event import AiChatResponseBriefEvent
 from lingya_agents_sdk.models.ai_chat_start_brief_event import AiChatStartBriefEvent
 from lingya_agents_sdk.models.ai_chat_sub_agent_call_brief_event import AiChatSubAgentCallBriefEvent
 from lingya_agents_sdk.models.ai_chat_think_brief_event import AiChatThinkBriefEvent
@@ -45,8 +43,6 @@ AiChatBriefEvent = Union[
     AiChatErrorBriefEvent,
     AiChatStartBriefEvent,
     AiChatThinkBriefEvent,
-    AiChatRequestBriefEvent,
-    AiChatResponseBriefEvent,
     AiChatMessageBriefEvent,
     AiChatToolExecutionBriefEvent,
     AiChatSubAgentCallBriefEvent,
@@ -130,10 +126,6 @@ def _event_model(event_type: str) -> type[BaseModel] | None:
             return AiChatStartBriefEvent
         case "think":
             return AiChatThinkBriefEvent
-        case "chat-client-request":
-            return AiChatRequestBriefEvent
-        case "chat-client-response":
-            return AiChatResponseBriefEvent
         case "message":
             return AiChatMessageBriefEvent
         case "tool-execution":

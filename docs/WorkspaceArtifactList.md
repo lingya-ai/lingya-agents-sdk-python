@@ -6,8 +6,8 @@ WorkspaceArtifactList 的公开协议结构。 / Public contract for workspace a
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**file_artifacts** | [**WorkspaceFilePage**](WorkspaceFilePage.md) | 字段 fileArtifacts / file artifacts field。 | 
-**non_file_artifacts** | [**List[WorkspaceNonFileArtifact]**](WorkspaceNonFileArtifact.md) | 字段 nonFileArtifacts / non file artifacts field。 | 
+**file_artifacts** | [**WorkspaceFilePage**](WorkspaceFilePage.md) | 字段 fileArtifacts / file artifacts field。 |
+**non_file_artifacts** | [**List[WorkspaceNonFileArtifact]**](WorkspaceNonFileArtifact.md) | 字段 nonFileArtifacts / non file artifacts field。 |
 
 ## Example
 

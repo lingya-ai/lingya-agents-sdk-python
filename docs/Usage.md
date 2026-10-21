@@ -6,13 +6,13 @@ Usage 的公开协议结构。 / Public contract for usage.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**input_tokens** | **int** | 输入 Token 数 / input token count。 | 
-**output_tokens** | **int** | 输出 Token 数 / output token count。 | 
-**total_tokens** | **int** | 总 Token 数 / total token count。 | [readonly] 
-**input_token_breakdown** | [**InputTokenBreakdown**](InputTokenBreakdown.md) | 字段 inputTokenBreakdown / input token breakdown field。 | [optional] 
-**reasoning_tokens** | **int** | 字段 reasoningTokens / reasoning tokens field。 | [optional] 
-**cache_hit_rate** | **float** | 字段 cacheHitRate / cache hit rate field。 | [optional] [readonly] 
-**input_breakdown_coverage_rate** | **float** | 字段 inputBreakdownCoverageRate / input breakdown coverage rate field。 | [optional] [readonly] 
+**input_tokens** | **int** | 输入 Token 数 / input token count。 |
+**output_tokens** | **int** | 输出 Token 数 / output token count。 |
+**total_tokens** | **int** | 总 Token 数 / total token count。 | [readonly]
+**input_token_breakdown** | [**InputTokenBreakdown**](InputTokenBreakdown.md) | 字段 inputTokenBreakdown / input token breakdown field。 | [optional]
+**reasoning_tokens** | **int** | 字段 reasoningTokens / reasoning tokens field。 | [optional]
+**cache_hit_rate** | **float** | 字段 cacheHitRate / cache hit rate field。 | [optional] [readonly]
+**input_breakdown_coverage_rate** | **float** | 字段 inputBreakdownCoverageRate / input breakdown coverage rate field。 | [optional] [readonly]
 
 ## Example
 

@@ -91,6 +91,7 @@ lines = [
     "from urllib.parse import quote",
     "",
     "from lingya_agents_sdk.events import AiChatBriefEvent",
+    "from lingya_agents_sdk.lifecycle import RequestOptions",
     *[f"from lingya_agents_sdk.models.{snake_case(name)} import {name}" for name in sorted(model_names)],
     "",
     "",
@@ -121,6 +122,7 @@ for group in groups:
             f"{snake_case(item['name'])}: {python_type(item['schema'], False)} = {default_value(item)}"
             for item in optional_query
         )
+        signature.extend(["*", "request_options: RequestOptions | None = None"])
         response_schema = operation["response"]["schema"]
         if operation["sse"]:
             return_type = (
@@ -191,22 +193,39 @@ for group in groups:
         if operation["sse"]:
             request_id = "request_id" if any(item["name"] == "X-Request-ID" for item in query_parameters) else "None"
             lines.append(
-                f"        return self._client._{snake_case(operation['operationId'])}(suffix, input, {request_id})"
+                f"        return self._client.with_request_options(request_options)._{snake_case(operation['operationId'])}(suffix, input, {request_id})"
             )
         elif operation["response"]["format"] == "binary" or operation["response"]["mediaType"] == "text/csv":
             accept = "accept" if any(item["name"] == "Accept" for item in query_parameters) else "None"
             lines.append(
-                f"        return self._client._request_bytes({method!r}, suffix, {query_expression}, {accept})"
+                f"        return self._client.with_request_options(request_options)._request_bytes({method!r}, suffix, {query_expression}, {accept})"
             )
         elif response_schema:
             lines.append(
-                f"        return self._client._request_model({method!r}, suffix, {response_schema}, {body_expression}, {query_expression})"
+                f"        return self._client.with_request_options(request_options)._request_model({method!r}, suffix, {response_schema}, {body_expression}, {query_expression})"
             )
         else:
             lines.append(
-                f"        return self._client._request_status({method!r}, suffix, {body_expression}, {query_expression})"
+                f"        return self._client.with_request_options(request_options)._request_status({method!r}, suffix, {body_expression}, {query_expression})"
             )
         lines.append("")
+
+# Additional SDK-only helpers are deliberately outside the HTTP operation manifest.
+for index in range(len(lines) - 1, -1, -1):
+    if lines[index].startswith("class ChatApi:"):
+        end = next((i for i in range(index + 1, len(lines)) if lines[i].startswith("class ")), len(lines))
+        lines[end:end] = [
+            "    def subscribe_chat_events(self, conversation_id: str, input: AiChatStreamInput, transport: Literal['sse', 'websocket'] = 'sse', *, request_options: RequestOptions | None = None) -> ChatSubscription:",
+            "        return ChatSubscription(self._client, conversation_id, input, transport, request_options)", "",
+        ]
+# The export helper has the same wire options and byte decoding as the legacy method.
+export_start = next(i for i, line in enumerate(lines) if line.startswith("    def export_sql_query_result("))
+export_end = next(i for i in range(export_start + 1, len(lines)) if lines[i].startswith("    def ") or lines[i].startswith("class "))
+helper = lines[export_start:export_end].copy()
+helper = [line.replace("export_sql_query_result(", "export_sql_query_result_with_metadata(").replace(") -> bytes:", ") -> DownloadResponse:").replace("._request_bytes(", "._download(") for line in helper]
+lines[export_end:export_end] = helper
+lines.insert(14, "from lingya_agents_sdk.subscription import ChatSubscription")
+lines.insert(14, "from lingya_agents_sdk.lifecycle import DownloadResponse")
 
 lines.extend(
     [
@@ -227,3 +246,30 @@ lines.append("")
 
 OUTPUT.write_text("\n".join(lines), encoding="utf-8")
 subprocess.run([sys.executable, "-m", "ruff", "format", str(OUTPUT)], check=True)
+
+# Async methods use exactly the same parameter and response models.
+async_source = "\n".join(lines)
+async_source = async_source.replace("from lingya_agents_sdk.subscription import ChatSubscription", "from lingya_agents_sdk.subscription import AsyncChatSubscription as ChatSubscription")
+async_source = async_source.replace("Iterator, Sequence", "AsyncIterator, Sequence").replace("Iterator[", "AsyncIterator[")
+for group in groups:
+    async_source = async_source.replace(f"class {class_name(group)}:", f"class Async{class_name(group)}:")
+    async_source = async_source.replace(f"Lingya{group.title()}Api = {class_name(group)}", f"Lingya{group.title()}Api = Async{class_name(group)}")
+async_source = async_source.replace("from lingya_agents_sdk.client import AgentsUserClient, QueryParameter", "from lingya_agents_sdk.client import QueryParameter  # noqa: E402\nfrom lingya_agents_sdk.async_client import AsyncAgentsUserClient as AgentsUserClient")
+async_lines = async_source.splitlines()
+for index, line in enumerate(async_lines):
+    if line.startswith("    def ") and not line.startswith("    def __init__"):
+        end = next(i for i in range(index, len(async_lines)) if ") ->" in async_lines[i])
+        if "AsyncIterator[" not in async_lines[end] and "-> ChatSubscription:" not in async_lines[end]:
+            async_lines[index] = line.replace("    def ", "    async def ")
+            for i in range(end + 1, len(async_lines)):
+                if async_lines[i].startswith("    def ") or async_lines[i].startswith("class "):
+                    break
+                if "return self._client." in async_lines[i]:
+                    async_lines[i] = async_lines[i].replace("return self._client.", "return await self._client.")
+async_output = ROOT / "lingya_agents_sdk/async_bound_api.py"
+async_output.write_text("\n".join(async_lines), encoding="utf-8")
+subprocess.run([sys.executable, "-m", "ruff", "format", str(async_output)], check=True)
+
+subprocess.run([sys.executable, "-m", "ruff", "check", "--fix", str(async_output)], check=True)
+
+subprocess.run([sys.executable, "-m", "ruff", "check", "--fix", str(OUTPUT)], check=True)

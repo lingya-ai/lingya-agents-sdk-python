@@ -6,9 +6,9 @@ PageInfo 的公开协议结构。 / Public contract for page info.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**current** | **int** | 字段 current / current field。 | 
-**size** | **int** | 大小（字节）或分页容量 / byte size or page size。 | 
-**total** | **int** | 字段 total / total field。 | 
+**current** | **int** | 字段 current / current field。 |
+**size** | **int** | 大小（字节）或分页容量 / byte size or page size。 |
+**total** | **int** | 字段 total / total field。 |
 
 ## Example
 

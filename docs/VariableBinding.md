@@ -6,8 +6,8 @@ VariableBinding 的公开协议结构。 / Public contract for variable binding.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **str** | 字段 name / name field。 | 
-**value** | **str** | 字段 value / value field。 | 
+**name** | **str** | 字段 name / name field。 |
+**value** | **str** | 字段 value / value field。 |
 
 ## Example
 

@@ -6,7 +6,7 @@ AiChatBriefEventList 的公开协议结构。 / Public contract for ai chat brie
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**records** | [**List[AiChatBriefEvent]**](AiChatBriefEvent.md) | 记录列表 / records。 | 
+**records** | [**List[AiChatBriefEvent]**](AiChatBriefEvent.md) | 记录列表 / records。 |
 
 ## Example
 

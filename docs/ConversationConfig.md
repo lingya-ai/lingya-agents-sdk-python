@@ -6,7 +6,8 @@ ConversationConfig 的公开协议结构。 / Public contract for conversation c
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**last_chat_model_spec** | [**ChatModelSpec**](ChatModelSpec.md) | 字段 lastChatModelSpec / last chat model spec field。 | [optional] 
+**last_chat_model_spec** | [**ChatModelSpec**](ChatModelSpec.md) | 字段 lastChatModelSpec / last chat model spec field。 |
+**plan_mode** | **bool** | 字段 planMode / plan mode field。 | [default to False]
 
 ## Example
 

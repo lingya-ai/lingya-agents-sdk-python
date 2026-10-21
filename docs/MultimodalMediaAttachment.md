@@ -6,9 +6,9 @@ MultimodalMediaAttachment 的公开协议结构。 / Public contract for multimo
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**file_name** | **str** | 文件名 / file name。 | 
-**mime_type** | **str** | MIME 类型 / MIME type。 | 
-**data** | **str** | 字段 data / data field。 | 
+**file_name** | **str** | 文件名 / file name。 |
+**mime_type** | **str** | MIME 类型 / MIME type。 |
+**data** | **str** | 字段 data / data field。 |
 
 ## Example
 

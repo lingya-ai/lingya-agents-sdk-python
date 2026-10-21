@@ -6,14 +6,14 @@ SqlChartResultExtensionContent 的公开协议结构。 / Public contract for sq
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**result_id** | **str** | 字段 resultId / result id field。 | 
-**row_count** | **int** | 字段 rowCount / row count field。 | 
-**column_count** | **int** | 字段 columnCount / column count field。 | 
-**columns** | **List[str]** | 字段 columns / columns field。 | 
-**var_schema** | [**List[SqlResultColumnSchema]**](SqlResultColumnSchema.md) | 字段 schema / schema field。 | 
-**chart** | [**ChartSpec**](ChartSpec.md) | 字段 chart / chart field。 | 
-**quality_summary** | [**ChartQualitySummary**](ChartQualitySummary.md) | 字段 qualitySummary / quality summary field。 | 
-**time_context** | [**ChartTimeContext**](ChartTimeContext.md) | 字段 timeContext / time context field。 | 
+**result_id** | **str** | 字段 resultId / result id field。 |
+**row_count** | **int** | 字段 rowCount / row count field。 |
+**column_count** | **int** | 字段 columnCount / column count field。 |
+**columns** | **List[str]** | 字段 columns / columns field。 |
+**var_schema** | [**List[SqlResultColumnSchema]**](SqlResultColumnSchema.md) | 字段 schema / schema field。 |
+**chart** | [**ChartSpec**](ChartSpec.md) | 字段 chart / chart field。 |
+**quality_summary** | [**ChartQualitySummary**](ChartQualitySummary.md) | 字段 qualitySummary / quality summary field。 |
+**time_context** | [**ChartTimeContext**](ChartTimeContext.md) | 字段 timeContext / time context field。 |
 
 ## Example
 

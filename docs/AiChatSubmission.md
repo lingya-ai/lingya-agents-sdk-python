@@ -6,10 +6,10 @@ AiChatSubmission 的公开协议结构。 / Public contract for ai chat submissi
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**conversation_id** | **str** | 会话 ID / conversation ID。 | 
-**message_id** | **str** | 消息 ID / message ID。 | 
-**disposition** | **str** | 字段 disposition / disposition field。 Dispatch disposition. Unknown future values must be preserved. | 
-**status** | **str** | 当前状态 / current status。 Persisted message status. Unknown future values must be preserved. | 
+**conversation_id** | **str** | 会话 ID / conversation ID。 |
+**message_id** | **str** | 消息 ID / message ID。 |
+**disposition** | **str** | 字段 disposition / disposition field。 Dispatch disposition. Unknown future values must be preserved. |
+**status** | **str** | 当前状态 / current status。 Persisted message status. Unknown future values must be preserved. |
 
 ## Example
 

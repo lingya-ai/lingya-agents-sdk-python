@@ -6,12 +6,12 @@ ChartSeries 的公开协议结构。 / Public contract for chart series.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **str** | 字段 name / name field。 | 
-**value_column** | **str** | 字段 valueColumn / value column field。 | 
-**render_type** | **str** | 字段 renderType / render type field。 | 
-**axis** | **str** | 字段 axis / axis field。 | 
-**number_format** | [**ChartNumberFormat**](ChartNumberFormat.md) | 字段 numberFormat / number format field。 | 
-**stack** | **str** | 字段 stack / stack field。 | [optional] 
+**name** | **str** | 字段 name / name field。 |
+**value_column** | **str** | 字段 valueColumn / value column field。 |
+**render_type** | **str** | 字段 renderType / render type field。 |
+**axis** | **str** | 字段 axis / axis field。 |
+**number_format** | [**ChartNumberFormat**](ChartNumberFormat.md) | 字段 numberFormat / number format field。 |
+**stack** | **str** | 字段 stack / stack field。 | [optional]
 
 ## Example
 

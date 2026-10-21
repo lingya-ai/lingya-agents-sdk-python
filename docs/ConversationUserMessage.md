@@ -6,12 +6,12 @@ ConversationUserMessage 的公开协议结构。 / Public contract for conversat
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**text** | **str** | 字段 text / text field。 | 
-**multimodal_attachments** | [**List[MultimodalMediaAttachment]**](MultimodalMediaAttachment.md) | 字段 multimodalAttachments / multimodal attachments field。 | [optional] 
-**attachments** | [**List[MediaAttachment]**](MediaAttachment.md) | 字段 attachments / attachments field。 | [optional] 
-**metadata_raw_json** | **str** | 字段 metadataRawJson / metadata raw json field。 | [optional] 
-**execution_type** | **str** | 字段 executionType / execution type field。 | 
-**type** | **str** | 类型判别值 / type discriminator。 | 
+**text** | **str** | 字段 text / text field。 |
+**multimodal_attachments** | [**List[MultimodalMediaAttachment]**](MultimodalMediaAttachment.md) | 字段 multimodalAttachments / multimodal attachments field。 | [optional]
+**attachments** | [**List[MediaAttachment]**](MediaAttachment.md) | 字段 attachments / attachments field。 | [optional]
+**execution_type** | **str** | 字段 executionType / execution type field。 |
+**type** | **str** | 类型判别值 / type discriminator。 |
+**metadata** | **Dict[str, object]** | 消息来源定义的动态 JSON 元数据。 / Dynamic JSON metadata defined by the message source. |
 
 ## Example
 

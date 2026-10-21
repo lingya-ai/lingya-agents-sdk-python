@@ -6,7 +6,7 @@ ConversationActivityBatchInput 的公开协议结构。 / Public contract for co
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**conversation_ids** | **List[str]** | 字段 conversationIds / conversation ids field。 | 
+**conversation_ids** | **List[str]** | 字段 conversationIds / conversation ids field。 |
 
 ## Example
 

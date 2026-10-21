@@ -6,7 +6,7 @@ CitationMetadataList 的公开协议结构。 / Public contract for citation met
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**records** | [**List[CitationMetadata]**](CitationMetadata.md) | 记录列表 / records。 | 
+**records** | [**List[CitationMetadata]**](CitationMetadata.md) | 记录列表 / records。 |
 
 ## Example
 

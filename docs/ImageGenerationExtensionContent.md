@@ -6,7 +6,7 @@ ImageGenerationExtensionContent 的公开协议结构。 / Public contract for i
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**file_id** | **int** | 文件 ID / file ID。 | 
+**file_id** | **int** | 文件 ID / file ID。 |
 
 ## Example
 

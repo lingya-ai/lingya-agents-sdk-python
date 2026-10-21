@@ -6,8 +6,8 @@ UnknownAiChatBriefEvent 的公开协议结构。 / Public contract for unknown a
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**raw_json** | **str** | 未识别对象的原始 JSON / raw JSON for an unrecognized object。 | 
+**type** | **str** | 类型判别值 / type discriminator。 |
+**raw_json** | **str** | 未识别对象的原始 JSON / raw JSON for an unrecognized object。 |
 
 ## Example
 

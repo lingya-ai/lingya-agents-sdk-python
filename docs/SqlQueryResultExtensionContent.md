@@ -6,14 +6,14 @@ SqlQueryResultExtensionContent 的公开协议结构。 / Public contract for sq
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**result_id** | **str** | 字段 resultId / result id field。 | 
-**row_count** | **int** | 字段 rowCount / row count field。 | 
-**total_row_count** | **int** | 字段 totalRowCount / total row count field。 | 
-**column_count** | **int** | 字段 columnCount / column count field。 | 
-**columns** | **List[str]** | 字段 columns / columns field。 | 
-**var_schema** | [**List[SqlResultColumnSchema]**](SqlResultColumnSchema.md) | 字段 schema / schema field。 | 
-**truncated** | **bool** | 字段 truncated / truncated field。 | 
-**limit** | **int** | 字段 limit / limit field。 | 
+**result_id** | **str** | 字段 resultId / result id field。 |
+**row_count** | **int** | 字段 rowCount / row count field。 |
+**total_row_count** | **int** | 字段 totalRowCount / total row count field。 |
+**column_count** | **int** | 字段 columnCount / column count field。 |
+**columns** | **List[str]** | 字段 columns / columns field。 |
+**var_schema** | [**List[SqlResultColumnSchema]**](SqlResultColumnSchema.md) | 字段 schema / schema field。 |
+**truncated** | **bool** | 字段 truncated / truncated field。 |
+**limit** | **int** | 字段 limit / limit field。 |
 
 ## Example
 

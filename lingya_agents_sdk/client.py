@@ -1,15 +1,30 @@
-"""Trusted-server HMAC client for the Lingya Agents OpenAPI."""
+"""HMAC and single-use token clients for the Lingya Agents OpenAPI."""
 
 from __future__ import annotations
 
 import base64
+import copy
 import hashlib
 import hmac
 import secrets
 import time
-from collections.abc import Iterator, Sequence
+from collections.abc import Callable, Generator, Iterator, Sequence
 from dataclasses import dataclass
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
+
+if TYPE_CHECKING:
+    from lingya_agents_sdk.bound_api import (
+        ChatApi,
+        ConfigurationApi,
+        ConversationsApi,
+        EventsApi,
+        FilesApi,
+        InteractionsApi,
+        KnowledgeApi,
+        MessagesApi,
+        SqlApi,
+        WorkspaceApi,
+    )
 from urllib.parse import quote, urlencode
 
 import httpx
@@ -17,6 +32,15 @@ from pydantic import BaseModel
 from typing_extensions import deprecated
 
 from lingya_agents_sdk.events import AiChatBriefEvent, decode_ai_chat_brief_event
+from lingya_agents_sdk.lifecycle import ApiError as ApiError
+from lingya_agents_sdk.lifecycle import (
+    DownloadResponse,
+    RequestOptions,
+    RequestScope,
+    download_response,
+    notify,
+    scoped_options,
+)
 from lingya_agents_sdk.models.ai_chat_stream_input import AiChatStreamInput
 from lingya_agents_sdk.models.chat_stream_probe_event import ChatStreamProbeEvent
 from lingya_agents_sdk.models.chat_stream_probe_input import ChatStreamProbeInput
@@ -38,6 +62,30 @@ class OpenApiCredentials:
 
 
 @dataclass(frozen=True)
+class TokenContext:
+    """Context passed to each fresh-token callback."""
+
+    channel_id: str
+    cancel_event: object = None
+    deadline: float | None = None
+
+
+@dataclass(frozen=True, repr=False)
+class TokenAuth:
+    """Single-use token authentication; issue a fresh token per callback."""
+
+    token_provider: Callable[[TokenContext], str]
+
+
+@dataclass(frozen=True)
+class HmacAuth:
+    """Bind trusted-server credentials and one external user."""
+
+    credentials: OpenApiCredentials
+    external_user_id: str
+
+
+@dataclass(frozen=True)
 class QueryParameter:
     """保留顺序并允许重复名称的查询参数。 / Ordered query parameter that permits repeated names."""
 
@@ -45,29 +93,52 @@ class QueryParameter:
     value: str
 
 
-class ApiError(RuntimeError):
-    """不包含凭证的 HTTP 错误。 / HTTP failure that never contains credentials."""
-
-    def __init__(self, method: str, path: str, status_code: int, response_body: str) -> None:
-        super().__init__(f"{method} {path} returned HTTP {status_code}")
-        self.method = method
-        self.path = path
-        self.status_code = status_code
-        self.response_body = response_body
-
-
 class AgentsClient:
-    """Lingya Agents SDK 入口，仅用于可信服务端。 / SDK entry point for trusted servers only.
+    """Lingya Agents SDK 入口，支持服务端 HMAC 与一次性令牌。 / HMAC and single-use token SDK entry point.
 
     客户端保存 channel 范围的凭证，但只有 [for_user()] 返回的用户客户端可以发起请求。
     """
 
-    def __init__(self, base_url: str, channel_id: str, credentials: OpenApiCredentials) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        channel_id: str,
+        credentials: OpenApiCredentials | None = None,
+        *,
+        auth: TokenAuth | HmacAuth | None = None,
+        http_client: httpx.Client | None = None,
+    ) -> None:
         if not channel_id:
             raise ValueError("channel_id must not be empty")
         self._base_url = base_url.rstrip("/")
         self.channel_id = channel_id
+        if (credentials is None) == (auth is None):
+            raise ValueError("Provide either credentials or auth")
+        self._http_client = http_client
         self._credentials = credentials
+        self._bound: AgentsUserClient | None = None
+        if isinstance(auth, TokenAuth):
+            self._bound = AgentsUserClient(self._base_url, channel_id, None, None, auth.token_provider, http_client)
+        elif isinstance(auth, HmacAuth):
+            self._bound = AgentsUserClient(
+                self._base_url, channel_id, auth.credentials, auth.external_user_id, http_client=http_client
+            )
+
+    def _user(self) -> AgentsUserClient:
+        if self._bound is None:
+            raise ValueError("Call for_user before using a legacy channel client")
+        return self._bound
+
+    def close(self) -> None:
+        """Close the identity-bound connection pool."""
+        if self._bound is not None:
+            self._bound.close()
+
+    def __enter__(self) -> AgentsClient:
+        return self
+
+    def __exit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
+        self.close()
 
     def for_user(self, external_user_id: str) -> AgentsUserClient:
         """绑定外部用户并为其后续请求独立签名。 / Bind one external user for signed calls.
@@ -78,21 +149,88 @@ class AgentsClient:
         Returns:
             注入外部用户身份的同步客户端。
         """
-        return AgentsUserClient(self._base_url, self.channel_id, self._credentials, external_user_id)
+        if self._credentials is None:
+            raise ValueError("Auth already binds identity; create a new client to switch users")
+        return AgentsUserClient(
+            self._base_url, self.channel_id, self._credentials, external_user_id, http_client=self._http_client
+        )
+
+    @property
+    def chat(self) -> ChatApi:
+        """Access the identity-bound chat API."""
+        return self._user().chat
+
+    @property
+    def configuration(self) -> ConfigurationApi:
+        """Access the identity-bound configuration API."""
+        return self._user().configuration
+
+    @property
+    def conversations(self) -> ConversationsApi:
+        """Access the identity-bound conversations API."""
+        return self._user().conversations
+
+    @property
+    def events(self) -> EventsApi:
+        """Access the identity-bound events API."""
+        return self._user().events
+
+    @property
+    def files(self) -> FilesApi:
+        """Access the identity-bound files API."""
+        return self._user().files
+
+    @property
+    def interactions(self) -> InteractionsApi:
+        """Access the identity-bound interactions API."""
+        return self._user().interactions
+
+    @property
+    def knowledge(self) -> KnowledgeApi:
+        """Access the identity-bound knowledge API."""
+        return self._user().knowledge
+
+    @property
+    def messages(self) -> MessagesApi:
+        """Access the identity-bound messages API."""
+        return self._user().messages
+
+    @property
+    def sql(self) -> SqlApi:
+        """Access the identity-bound sql API."""
+        return self._user().sql
+
+    @property
+    def workspace(self) -> WorkspaceApi:
+        """Access the identity-bound workspace API."""
+        return self._user().workspace
 
 
 class AgentsUserClient:
     """已绑定外部用户的同步客户端。 / Synchronous client bound to one external user."""
 
-    def __init__(self, base_url: str, channel_id: str, credentials: OpenApiCredentials, external_user_id: str) -> None:
-        user_bytes = external_user_id.encode("utf-8")
-        if not 1 <= len(user_bytes) <= 256 or b"\0" in user_bytes:
+    def __init__(
+        self,
+        base_url: str,
+        channel_id: str,
+        credentials: OpenApiCredentials | None,
+        external_user_id: str | None,
+        token_provider: Callable[[TokenContext], str] | None = None,
+        http_client: httpx.Client | None = None,
+    ) -> None:
+        self._token_provider = token_provider
+        user_bytes = (external_user_id or "").encode("utf-8")
+        if token_provider is None and (not 1 <= len(user_bytes) <= 256 or b"\0" in user_bytes):
             raise ValueError("external_user_id must contain 1 to 256 UTF-8 bytes and no NUL")
         self.channel_id = channel_id
         self._credentials = credentials
         self._encoded_user = base64.urlsafe_b64encode(user_bytes).rstrip(b"=").decode("ascii")
         self._root = f"{base_url}/api/agents/channel/openapi/v1/{quote(channel_id, safe='')}/chat"
-        self._http = httpx.Client(timeout=httpx.Timeout(120.0), follow_redirects=False)
+        self._http = http_client or httpx.Client(timeout=None, follow_redirects=False)
+        self._owns_http = http_client is None
+        self._request_options = RequestOptions()
+        self._active_scope: RequestScope | None = None
+        self._active_response: httpx.Response | None = None
         from lingya_agents_sdk.bound_api import (
             ChatApi,
             ConfigurationApi,
@@ -125,13 +263,28 @@ class AgentsUserClient:
 
     def close(self) -> None:
         """释放连接池。 / Close the underlying connection pool."""
-        self._http.close()
+        if self._owns_http:
+            self._http.close()
 
     def __enter__(self) -> AgentsUserClient:
         return self
 
     def __exit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
         self.close()
+
+    def with_request_options(self, options: RequestOptions | None = None) -> AgentsUserClient:
+        scoped = copy.copy(self)
+        scoped._request_options = scoped_options(options)
+        scoped._active_response = None
+        scoped._active_scope = RequestScope(scoped._request_options)
+        return scoped
+
+    def _download(
+        self, method: str, suffix: str, query: Sequence[QueryParameter] = (), accept: str | None = None
+    ) -> DownloadResponse:
+        return download_response(
+            self._raw_response(method, suffix, query=query, accept=accept or "application/octet-stream")
+        )
 
     def _request_model(
         self,
@@ -153,7 +306,11 @@ class AgentsUserClient:
         Raises:
             ApiError: 服务端返回非 2xx 状态。
         """
-        return response_type.model_validate_json(self._raw_response(method, suffix, body, query).content)
+        response = self._raw_response(method, suffix, body, query)
+        try:
+            return response_type.model_validate_json(response.content)
+        except ValueError:
+            raise ApiError(method, suffix, kind="protocol") from None
 
     @deprecated("Use the matching grouped facade operation; this helper will be removed in 1.0")
     def request_model(
@@ -231,11 +388,38 @@ class AgentsUserClient:
         Raises:
             ApiError: 服务端返回非 2xx 状态，异常不包含 secret。
         """
-        request = self._signed_request(method, suffix, body, query, accept)
-        response = self._http.send(request)
-        if not response.is_success:
-            raise ApiError(method, suffix, response.status_code, response.text)
-        return response
+        scope = self._active_scope or RequestScope(self._request_options)
+        self._active_scope = scope
+        try:
+            request = self._signed_request(method, suffix, body, query, accept)
+            scope.check()
+            request.extensions["timeout"] = httpx.Timeout(scope.remaining()).as_dict()
+            response = self._http.send(request, stream=True, follow_redirects=False)
+            try:
+                chunks = []
+                for chunk in response.iter_bytes():
+                    scope.check()
+                    chunks.append(chunk)
+                scope.check()
+                result = httpx.Response(
+                    response.status_code, headers=response.headers, content=b"".join(chunks), request=request
+                )
+                if not result.is_success:
+                    raise ApiError(
+                        method,
+                        suffix,
+                        result.status_code,
+                        result.text[:65536],
+                        request_id=result.headers.get("X-Request-ID"),
+                    )
+                return result
+            finally:
+                response.close()
+        except httpx.TimeoutException:
+            raise ApiError(method, suffix, kind="timeout") from None
+        except httpx.TransportError:
+            scope.check()
+            raise ApiError(method, suffix, kind="network") from None
 
     @deprecated("Use low_level or a grouped facade operation; this helper will be removed in 1.0")
     def raw_response(
@@ -254,7 +438,7 @@ class AgentsUserClient:
         suffix: str,
         input: AiChatStreamInput,
         request_id: str | None = None,
-    ) -> Iterator[AiChatBriefEvent]:
+    ) -> Generator[AiChatBriefEvent, None, None]:
         """订阅对话 SSE，并返回强类型事件或 raw JSON fallback。 / Stream typed conversation events.
 
         Args:
@@ -262,20 +446,63 @@ class AgentsUserClient:
             message_id: 触发本次生成的消息 ID。
 
         Yields:
-            15 种已知事件之一；未知 type 使用包含原始 JSON 的明确 fallback。
+            13 种已知事件之一；未知 type 使用包含原始 JSON 的明确 fallback。
 
         迭代提前结束或抛出异常时始终关闭响应流。
         """
-        request = self._signed_request("POST", suffix, input, (), "text/event-stream", request_id)
-        response = self._http.send(request, stream=True)
+        stream = self._stream_data(suffix, input, request_id)
         try:
+            for data in stream:
+                event = decode_ai_chat_brief_event(data)
+                if event.type == "end":
+                    stream.close()
+                    yield event
+                    return
+                yield event
+            raise ApiError("POST", suffix, kind="unexpected_eof")
+        except ValueError:
+            raise ApiError("POST", suffix, kind="protocol") from None
+        finally:
+            stream.close()
+
+    def _stream_data(self, suffix: str, input: RequestBody, request_id: str | None) -> Generator[str, None, None]:
+        scope = RequestScope(self._request_options)
+        self._active_scope = scope
+        response = None
+        try:
+            scope.check()
+            request = self._signed_request("POST", suffix, input, (), "text/event-stream", request_id)
+            remaining = scope.remaining()
+            idle = self._request_options.idle_timeout_ms
+            request.extensions["timeout"] = httpx.Timeout(remaining, read=min(remaining, idle / 1000) if idle is not None and remaining is not None else idle / 1000 if idle is not None else remaining).as_dict()
+            response = self._http.send(request, stream=True, follow_redirects=False)
+            self._active_response = response
             if not response.is_success:
                 response.read()
-                raise ApiError("POST", suffix, response.status_code, response.text)
-            for data in decode_sse_lines(response.iter_lines()):
-                yield decode_ai_chat_brief_event(data)
+                raise ApiError("POST", suffix, response.status_code, response.text[:65536], request_id=response.headers.get("X-Request-ID"))
+            if response.headers.get("Content-Type", "").split(";")[0].strip().lower() != "text/event-stream":
+                raise ApiError("POST", suffix, kind="protocol")
+            notify(self._request_options, "opened", "sse", request_id=response.headers.get("X-Request-ID"))
+            def lines() -> Generator[str, None, None]:
+                assert response is not None
+                for line in response.iter_lines():
+                    scope.check()
+                    if line.startswith(":"):
+                        notify(self._request_options, "ready" if line.strip() == ":ready" else "heartbeat", "sse")
+                    yield line
+            yield from decode_sse_lines(lines())
+            scope.check()
+        except httpx.TimeoutException:
+            raise ApiError("POST", suffix, kind="timeout") from None
+        except httpx.TransportError:
+            scope.check()
+            raise ApiError("POST", suffix, kind="network") from None
         finally:
-            response.close()
+            if response is not None:
+                response.close()
+            self._active_scope = None
+            self._active_response = None
+            notify(self._request_options, "closed", "sse")
 
     @deprecated("Use chat.stream_chat_events(conversation_id, AiChatStreamInput(messageId=...))")
     def stream_chat_events(self, conversation_id: str, message_id: str) -> Iterator[AiChatBriefEvent]:
@@ -290,16 +517,14 @@ class AgentsUserClient:
         request_id: str | None = None,
     ) -> Iterator[ChatStreamProbeEvent]:
         """解码诊断 SSE。 / Decode the diagnostic SSE stream."""
-        request = self._signed_request("POST", suffix, input, (), "text/event-stream", request_id)
-        response = self._http.send(request, stream=True)
+        stream = self._stream_data(suffix, input, request_id)
         try:
-            if not response.is_success:
-                response.read()
-                raise ApiError("POST", suffix, response.status_code, response.text)
-            for data in decode_sse_lines(response.iter_lines()):
+            for data in stream:
                 yield ChatStreamProbeEvent.model_validate_json(data)
+        except ValueError:
+            raise ApiError("POST", suffix, kind="protocol") from None
         finally:
-            response.close()
+            stream.close()
 
     def _signed_request(
         self,
@@ -312,16 +537,40 @@ class AgentsUserClient:
     ) -> httpx.Request:
         body_text: str | None
         if isinstance(body, BaseModel):
-            body_text = body.model_dump_json(by_alias=True, exclude_none=True)
+            body_text = body.model_dump_json(by_alias=True, exclude_unset=True)
         elif isinstance(body, str) or body is None:
             body_text = body
         else:
-            body_text = "[" + ",".join(item.model_dump_json(by_alias=True, exclude_none=True) for item in body) + "]"
+            body_text = "[" + ",".join(item.model_dump_json(by_alias=True, exclude_unset=True) for item in body) + "]"
         body_bytes = b"" if body_text is None else body_text.encode("utf-8")
         if len(body_bytes) > 2 * 1024 * 1024:
             raise ValueError("request body exceeds the 2 MiB signing limit")
         raw_query = urlencode([(item.name, item.value) for item in query])
         url = f"{self._root}{suffix}{'?' + raw_query if raw_query else ''}"
+        if self._token_provider is not None:
+            if suffix.rstrip("/") == "/presign":
+                raise ApiError(method, suffix, response_body='{"message":"presign requires HMAC authentication"}', kind="authentication")
+            headers = {"Accept": accept}
+            if body_text is not None:
+                headers["Content-Type"] = "application/json"
+            if request_id is not None:
+                headers["X-Request-ID"] = request_id
+            request = self._http.build_request(method, url, headers=headers, content=body_bytes)
+            try:
+                token = self._token_provider(TokenContext(self.channel_id, self._request_options.cancel_event))
+            except Exception:
+                raise ApiError(
+                    method, suffix, response_body='{"message":"OpenAPI token provider failed"}', kind="authentication"
+                ) from None
+            if not isinstance(token, str) or not token or any(not 33 <= ord(c) <= 126 for c in token):
+                raise ApiError(
+                    method, suffix, response_body='{"message":"Invalid OpenAPI token"}', kind="authentication"
+                )
+            if self._active_scope is not None:
+                self._active_scope.check()
+            request.headers["X-OpenAPI-Token"] = token
+            return request
+        assert self._credentials is not None
         timestamp = str(int(time.time()))
         nonce = base64.urlsafe_b64encode(secrets.token_bytes(16)).rstrip(b"=").decode("ascii")
         content_type = "application/json" if body_text is not None else ""

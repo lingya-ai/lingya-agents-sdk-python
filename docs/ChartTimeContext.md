@@ -6,8 +6,8 @@ ChartTimeContext 的公开协议结构。 / Public contract for chart time conte
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**as_of_instant** | **datetime** | 字段 asOfInstant / as of instant field。 | 
-**tenant_zone_id** | **str** | 字段 tenantZoneId / tenant zone id field。 | 
+**as_of_instant** | **datetime** | 字段 asOfInstant / as of instant field。 |
+**tenant_zone_id** | **str** | 字段 tenantZoneId / tenant zone id field。 |
 
 ## Example
 

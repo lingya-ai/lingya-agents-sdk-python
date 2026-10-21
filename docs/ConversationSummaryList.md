@@ -6,7 +6,8 @@ ConversationSummaryList 的公开协议结构。 / Public contract for conversat
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**records** | [**List[ConversationSummary]**](ConversationSummary.md) | 记录列表 / records。 | 
+**records** | [**List[ConversationSummary]**](ConversationSummary.md) | 记录列表 / records。 |
+**page** | [**PageInfo**](PageInfo.md) | 分页信息 / page metadata。 |
 
 ## Example
 

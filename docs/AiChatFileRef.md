@@ -6,8 +6,8 @@ AiChatFileRef 的公开协议结构。 / Public contract for ai chat file ref.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **int** | 字段 id / id field。 | 
-**file_name** | **str** | 文件名 / file name。 | [optional] 
+**id** | **int** | 字段 id / id field。 |
+**file_name** | **str** | 文件名 / file name。 | [optional]
 
 ## Example
 

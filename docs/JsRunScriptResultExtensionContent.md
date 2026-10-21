@@ -6,8 +6,8 @@ JsRunScriptResultExtensionContent 的公开协议结构。 / Public contract for
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**result** | **str** | 字段 result / result field。 | [optional] 
-**stdout** | **str** | 字段 stdout / stdout field。 | 
+**result** | **str** | 字段 result / result field。 | [optional]
+**stdout** | **str** | 字段 stdout / stdout field。 |
 
 ## Example
 

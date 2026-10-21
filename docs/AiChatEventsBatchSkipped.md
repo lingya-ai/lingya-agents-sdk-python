@@ -6,8 +6,8 @@ AiChatEventsBatchSkipped 的公开协议结构。 / Public contract for ai chat 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message_id** | **str** | 消息 ID / message ID。 | 
-**reason** | **str** | 字段 reason / reason field。 | 
+**message_id** | **str** | 消息 ID / message ID。 |
+**reason** | **str** | 字段 reason / reason field。 |
 
 ## Example
 

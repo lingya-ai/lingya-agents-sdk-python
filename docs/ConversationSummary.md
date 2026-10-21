@@ -6,18 +6,20 @@ ConversationSummary 的公开协议结构。 / Public contract for conversation 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**conversation_id** | **str** | 会话 ID / conversation ID。 | 
-**conversation_type** | **str** | 字段 conversationType / conversation type field。 | 
-**title** | **str** | 标题 / title。 | [optional] 
-**title_state** | **str** | 字段 titleState / title state field。 | 
-**status** | **str** | 当前状态 / current status。 | 
-**message_count** | **int** | 字段 messageCount / message count field。 | 
-**total_tokens** | **int** | 总 Token 数 / total token count。 | 
-**total_input_tokens** | **int** | 字段 totalInputTokens / total input tokens field。 | 
-**total_output_tokens** | **int** | 字段 totalOutputTokens / total output tokens field。 | 
-**usage** | [**Usage**](Usage.md) | 字段 usage / usage field。 | 
-**created_time** | **datetime** | 创建时间 / creation time。 | 
-**last_update_time** | **datetime** | 最后更新时间 / last update time。 | 
+**conversation_id** | **str** | 会话 ID / conversation ID。 |
+**conversation_type** | **str** | 字段 conversationType / conversation type field。 |
+**title** | **str** | 标题 / title。 | [optional]
+**title_state** | **str** | 字段 titleState / title state field。 |
+**status** | **str** | 当前状态 / current status。 |
+**message_count** | **int** | 字段 messageCount / message count field。 |
+**total_tokens** | **int** | 总 Token 数 / total token count。 |
+**total_input_tokens** | **int** | 字段 totalInputTokens / total input tokens field。 |
+**total_output_tokens** | **int** | 字段 totalOutputTokens / total output tokens field。 |
+**usage** | [**Usage**](Usage.md) | 字段 usage / usage field。 |
+**created_time** | **datetime** | 创建时间 / creation time。 |
+**last_update_time** | **datetime** | 最后更新时间 / last update time。 |
+**group_id** | **int** | 字段 groupId / group id field。 | [optional]
+**group_name** | **str** | 字段 groupName / group name field。 | [optional]
 
 ## Example
 

@@ -6,15 +6,15 @@ SqlQueryResultPage 的公开协议结构。 / Public contract for sql query resu
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**result_id** | **str** | 字段 resultId / result id field。 | 
-**sql** | **str** | 字段 sql / sql field。 | 
-**columns** | **List[str]** | 字段 columns / columns field。 | 
-**row_count** | **int** | 字段 rowCount / row count field。 | 
-**column_count** | **int** | 字段 columnCount / column count field。 | 
-**current** | **int** | 字段 current / current field。 | 
-**size** | **int** | 大小（字节）或分页容量 / byte size or page size。 | 
-**total** | **int** | 字段 total / total field。 | 
-**records** | [**List[SqlQueryResultRow]**](SqlQueryResultRow.md) | 记录列表 / records。 | 
+**result_id** | **str** | 字段 resultId / result id field。 |
+**sql** | **str** | 字段 sql / sql field。 |
+**columns** | **List[str]** | 字段 columns / columns field。 |
+**row_count** | **int** | 字段 rowCount / row count field。 |
+**column_count** | **int** | 字段 columnCount / column count field。 |
+**current** | **int** | 字段 current / current field。 |
+**size** | **int** | 大小（字节）或分页容量 / byte size or page size。 |
+**total** | **int** | 字段 total / total field。 |
+**records** | [**List[SqlQueryResultRow]**](SqlQueryResultRow.md) | 记录列表 / records。 |
 
 ## Example
 

@@ -6,15 +6,15 @@ ChatModelConfig 的公开协议结构。 / Public contract for chat model config
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**maker** | **str** | 字段 maker / maker field。 | 
-**model_name** | **str** | 字段 modelName / model name field。 | 
-**model_label** | **str** | 字段 modelLabel / model label field。 | 
-**model_description** | **str** | 字段 modelDescription / model description field。 | 
-**max_context_tokens** | **int** | 字段 maxContextTokens / max context tokens field。 | 
-**max_output_tokens** | **int** | 字段 maxOutputTokens / max output tokens field。 | 
-**support_image** | **bool** | 字段 supportImage / support image field。 | 
-**support_video** | **bool** | 字段 supportVideo / support video field。 | 
-**thinking_mode** | **bool** | 字段 thinkingMode / thinking mode field。 | 
+**maker** | **str** | 字段 maker / maker field。 |
+**model_name** | **str** | 字段 modelName / model name field。 |
+**model_label** | **str** | 字段 modelLabel / model label field。 |
+**model_description** | **str** | 字段 modelDescription / model description field。 |
+**max_context_tokens** | **int** | 字段 maxContextTokens / max context tokens field。 |
+**max_output_tokens** | **int** | 字段 maxOutputTokens / max output tokens field。 |
+**support_image** | **bool** | 字段 supportImage / support image field。 |
+**support_video** | **bool** | 字段 supportVideo / support video field。 |
+**thinking_mode** | **bool** | 字段 thinkingMode / thinking mode field。 |
 
 ## Example
 

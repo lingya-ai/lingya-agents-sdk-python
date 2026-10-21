@@ -6,10 +6,10 @@ InputTokenBreakdown 的公开协议结构。 / Public contract for input token b
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**observed_input_tokens** | **int** | 字段 observedInputTokens / observed input tokens field。 | 
-**uncached_input_tokens** | **int** | 字段 uncachedInputTokens / uncached input tokens field。 | 
-**cached_input_tokens** | **int** | 字段 cachedInputTokens / cached input tokens field。 | 
-**cache_creation_input_tokens** | **int** | 字段 cacheCreationInputTokens / cache creation input tokens field。 | [optional] 
+**observed_input_tokens** | **int** | 字段 observedInputTokens / observed input tokens field。 |
+**uncached_input_tokens** | **int** | 字段 uncachedInputTokens / uncached input tokens field。 |
+**cached_input_tokens** | **int** | 字段 cachedInputTokens / cached input tokens field。 |
+**cache_creation_input_tokens** | **int** | 字段 cacheCreationInputTokens / cache creation input tokens field。 | [optional]
 
 ## Example
 

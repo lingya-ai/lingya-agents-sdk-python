@@ -6,8 +6,8 @@ CodeMessage 的公开协议结构。 / Public contract for code message.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**code** | **str** | 字段 code / code field。 | 
-**message** | **str** | 消息正文 / message text。 | 
+**code** | **str** | 字段 code / code field。 |
+**message** | **str** | 消息正文 / message text。 |
 
 ## Example
 

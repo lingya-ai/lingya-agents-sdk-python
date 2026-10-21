@@ -6,7 +6,7 @@ ConversationReadReceiptInput 的公开协议结构。 / Public contract for conv
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message_id** | **str** | 消息 ID / message ID。 | 
+**message_id** | **str** | 消息 ID / message ID。 |
 
 ## Example
 

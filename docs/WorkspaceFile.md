@@ -6,11 +6,11 @@ WorkspaceFile 的公开协议结构。 / Public contract for workspace file.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**relative_path** | **str** | 字段 relativePath / relative path field。 | 
-**size** | **int** | 大小（字节）或分页容量 / byte size or page size。 | 
-**file_name** | **str** | 文件名 / file name。 | 
-**mime_type** | **str** | MIME 类型 / MIME type。 | 
-**last_update_time** | **datetime** | 最后更新时间 / last update time。 | 
+**relative_path** | **str** | 字段 relativePath / relative path field。 |
+**size** | **int** | 大小（字节）或分页容量 / byte size or page size。 |
+**file_name** | **str** | 文件名 / file name。 |
+**mime_type** | **str** | MIME 类型 / MIME type。 |
+**last_update_time** | **datetime** | 最后更新时间 / last update time。 |
 
 ## Example
 

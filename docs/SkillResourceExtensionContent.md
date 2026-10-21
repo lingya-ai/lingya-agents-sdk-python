@@ -6,8 +6,8 @@ SkillResourceExtensionContent 的公开协议结构。 / Public contract for ski
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**operation_type** | **str** | 字段 operationType / operation type field。 | 
-**filepath** | **str** | 字段 filepath / filepath field。 | 
+**operation_type** | **str** | 字段 operationType / operation type field。 |
+**filepath** | **str** | 字段 filepath / filepath field。 |
 
 ## Example
 

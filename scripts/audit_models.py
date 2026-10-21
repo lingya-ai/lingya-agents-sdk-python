@@ -22,6 +22,7 @@ def main() -> None:
                 if (
                     member.target.id.startswith("_")
                     or member.target.id == "discriminator_value_class_map"
+                    or (node.name == "ConversationUserMessage" and member.target.id == "metadata")
                     or _is_class_var(member.annotation)
                 ):
                     continue

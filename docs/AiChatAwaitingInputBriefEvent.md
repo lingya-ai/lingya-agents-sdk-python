@@ -6,16 +6,16 @@ AiChatAwaitingInputBriefEvent 的公开协议结构。 / Public contract for ai 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**tool_call_id** | **str** | 字段 toolCallId / tool call id field。 | 
-**tool_name** | **str** | 字段 toolName / tool name field。 | 
-**question_id** | **str** | 字段 questionId / question id field。 | 
-**question** | **str** | 字段 question / question field。 | 
-**options** | [**List[AskUserQuestionOption]**](AskUserQuestionOption.md) | 字段 options / options field。 | 
-**multiple** | **bool** | 字段 multiple / multiple field。 | 
-**server_now** | **datetime** | 字段 serverNow / server now field。 | 
-**timeout_seconds** | **int** | 字段 timeoutSeconds / timeout seconds field。 | 
-**question_details** | **str** | 字段 questionDetails / question details field。 | [optional] 
+**type** | **str** | 类型判别值 / type discriminator。 |
+**tool_call_id** | **str** | 字段 toolCallId / tool call id field。 |
+**tool_name** | **str** | 字段 toolName / tool name field。 |
+**question_id** | **str** | 字段 questionId / question id field。 |
+**question** | **str** | 字段 question / question field。 |
+**options** | [**List[AskUserQuestionOption]**](AskUserQuestionOption.md) | 字段 options / options field。 |
+**multiple** | **bool** | 字段 multiple / multiple field。 |
+**server_now** | **datetime** | 字段 serverNow / server now field。 |
+**timeout_seconds** | **int** | 字段 timeoutSeconds / timeout seconds field。 |
+**question_details** | **str** | 字段 questionDetails / question details field。 | [optional]
 
 ## Example
 

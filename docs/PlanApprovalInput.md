@@ -6,10 +6,10 @@ PlanApprovalInput 的公开协议结构。 / Public contract for plan approval i
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**conversation_id** | **str** | 会话 ID / conversation ID。 | 
-**message_id** | **str** | 消息 ID / message ID。 | 
-**approved** | **bool** | 字段 approved / approved field。 | 
-**feedback** | **str** | 字段 feedback / feedback field。 | [optional] 
+**conversation_id** | **str** | 会话 ID / conversation ID。 |
+**message_id** | **str** | 消息 ID / message ID。 |
+**approved** | **bool** | 字段 approved / approved field。 |
+**feedback** | **str** | 字段 feedback / feedback field。 | [optional]
 
 ## Example
 

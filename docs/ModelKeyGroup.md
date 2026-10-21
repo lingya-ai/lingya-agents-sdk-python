@@ -6,9 +6,9 @@ ModelKeyGroup 的公开协议结构。 / Public contract for model key group.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**key_group_id** | **int** | 字段 keyGroupId / key group id field。 | 
-**key_group_name** | **str** | 字段 keyGroupName / key group name field。 | 
-**models** | [**List[ChatModelConfig]**](ChatModelConfig.md) | 字段 models / models field。 | 
+**key_group_id** | **int** | 字段 keyGroupId / key group id field。 |
+**key_group_name** | **str** | 字段 keyGroupName / key group name field。 |
+**models** | [**List[ChatModelConfig]**](ChatModelConfig.md) | 字段 models / models field。 |
 
 ## Example
 

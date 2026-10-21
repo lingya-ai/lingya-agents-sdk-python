@@ -6,8 +6,8 @@ ModelConfig 的公开协议结构。 / Public contract for model config.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**default_model** | [**DefaultModel**](DefaultModel.md) | 字段 defaultModel / default model field。 | 
-**model_key_groups** | [**List[ModelKeyGroup]**](ModelKeyGroup.md) | 字段 modelKeyGroups / model key groups field。 | 
+**default_model** | [**DefaultModel**](DefaultModel.md) | 字段 defaultModel / default model field。 |
+**model_key_groups** | [**List[ModelKeyGroup]**](ModelKeyGroup.md) | 字段 modelKeyGroups / model key groups field。 |
 
 ## Example
 

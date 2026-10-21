@@ -6,12 +6,12 @@ ConversationStats 的公开协议结构。 / Public contract for conversation st
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**publish_id** | **str** | 字段 publishId / publish id field。 | 
-**total_conversations** | **int** | 字段 totalConversations / total conversations field。 | 
-**active_conversations** | **int** | 字段 activeConversations / active conversations field。 | 
-**total_messages** | **int** | 字段 totalMessages / total messages field。 | 
-**total_tokens** | **int** | 总 Token 数 / total token count。 | 
-**avg_messages_per_conversation** | **float** | 字段 avgMessagesPerConversation / avg messages per conversation field。 | 
+**publish_id** | **str** | 字段 publishId / publish id field。 |
+**total_conversations** | **int** | 字段 totalConversations / total conversations field。 |
+**active_conversations** | **int** | 字段 activeConversations / active conversations field。 |
+**total_messages** | **int** | 字段 totalMessages / total messages field。 |
+**total_tokens** | **int** | 总 Token 数 / total token count。 |
+**avg_messages_per_conversation** | **float** | 字段 avgMessagesPerConversation / avg messages per conversation field。 |
 
 ## Example
 

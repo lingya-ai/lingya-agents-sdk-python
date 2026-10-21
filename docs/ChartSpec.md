@@ -6,17 +6,17 @@ ChartSpec 的公开协议结构。 / Public contract for chart spec.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**version** | **int** | 字段 version / version field。 | 
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**title** | **str** | 标题 / title。 | 
-**subtitle** | **str** | 字段 subtitle / subtitle field。 | [optional] 
-**category_column** | **str** | 字段 categoryColumn / category column field。 | 
-**category_type** | **str** | 字段 categoryType / category type field。 | 
-**orientation** | **str** | 字段 orientation / orientation field。 | 
-**series** | [**List[ChartSeries]**](ChartSeries.md) | 字段 series / series field。 | 
-**legend** | **bool** | 字段 legend / legend field。 | 
-**data_zoom** | **str** | 字段 dataZoom / data zoom field。 | 
-**null_policy** | **str** | 字段 nullPolicy / null policy field。 | 
+**version** | **int** | 字段 version / version field。 |
+**type** | **str** | 类型判别值 / type discriminator。 |
+**title** | **str** | 标题 / title。 |
+**subtitle** | **str** | 字段 subtitle / subtitle field。 | [optional]
+**category_column** | **str** | 字段 categoryColumn / category column field。 |
+**category_type** | **str** | 字段 categoryType / category type field。 |
+**orientation** | **str** | 字段 orientation / orientation field。 |
+**series** | [**List[ChartSeries]**](ChartSeries.md) | 字段 series / series field。 |
+**legend** | **bool** | 字段 legend / legend field。 |
+**data_zoom** | **str** | 字段 dataZoom / data zoom field。 |
+**null_policy** | **str** | 字段 nullPolicy / null policy field。 |
 
 ## Example
 

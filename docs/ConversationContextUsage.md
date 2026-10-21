@@ -6,18 +6,18 @@ ConversationContextUsage 的公开协议结构。 / Public contract for conversa
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**system_prompt_tokens** | **int** | 字段 systemPromptTokens / system prompt tokens field。 | 
-**session_message_tokens** | **int** | 字段 sessionMessageTokens / session message tokens field。 | 
-**max_context_tokens** | **int** | 字段 maxContextTokens / max context tokens field。 | 
-**tool_definition_tokens** | **int** | 字段 toolDefinitionTokens / tool definition tokens field。 | 
-**protocol_reserve_tokens** | **int** | 字段 protocolReserveTokens / protocol reserve tokens field。 | 
-**active_context_tokens** | **int** | 字段 activeContextTokens / active context tokens field。 | 
-**requested_output_tokens** | **int** | 字段 requestedOutputTokens / requested output tokens field。 | 
-**message_assembly_reserve_tokens** | **int** | 字段 messageAssemblyReserveTokens / message assembly reserve tokens field。 | 
-**required_context_tokens** | **int** | 字段 requiredContextTokens / required context tokens field。 | 
-**active_usage_ratio** | **float** | 字段 activeUsageRatio / active usage ratio field。 | [optional] 
-**required_usage_ratio** | **float** | 字段 requiredUsageRatio / required usage ratio field。 | [optional] 
-**calculation_source** | **str** | 字段 calculationSource / calculation source field。 | 
+**system_prompt_tokens** | **int** | 字段 systemPromptTokens / system prompt tokens field。 |
+**session_message_tokens** | **int** | 字段 sessionMessageTokens / session message tokens field。 |
+**max_context_tokens** | **int** | 字段 maxContextTokens / max context tokens field。 |
+**tool_definition_tokens** | **int** | 字段 toolDefinitionTokens / tool definition tokens field。 |
+**protocol_reserve_tokens** | **int** | 字段 protocolReserveTokens / protocol reserve tokens field。 |
+**active_context_tokens** | **int** | 字段 activeContextTokens / active context tokens field。 |
+**requested_output_tokens** | **int** | 字段 requestedOutputTokens / requested output tokens field。 |
+**message_assembly_reserve_tokens** | **int** | 字段 messageAssemblyReserveTokens / message assembly reserve tokens field。 |
+**required_context_tokens** | **int** | 字段 requiredContextTokens / required context tokens field。 |
+**active_usage_ratio** | **float** | 字段 activeUsageRatio / active usage ratio field。 | [optional]
+**required_usage_ratio** | **float** | 字段 requiredUsageRatio / required usage ratio field。 | [optional]
+**calculation_source** | **str** | 字段 calculationSource / calculation source field。 |
 
 ## Example
 

@@ -6,8 +6,8 @@ ConfirmUploadInput 的公开协议结构。 / Public contract for confirm upload
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**file_uk** | **str** | 字段 fileUk / file uk field。 | 
-**content_md5** | **str** | 字段 contentMd5 / content md5 field。 | 
+**file_uk** | **str** | 字段 fileUk / file uk field。 |
+**content_md5** | **str** | 字段 contentMd5 / content md5 field。 |
 
 ## Example
 

@@ -6,13 +6,13 @@ AiChatToolExecutionBriefEvent 的公开协议结构。 / Public contract for ai 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**tool_id** | **str** | 字段 toolId / tool id field。 | 
-**tool_name** | **str** | 字段 toolName / tool name field。 | 
-**status** | **str** | 当前状态 / current status。 | 
-**action** | **str** | 字段 action / action field。 | 
-**summary** | **str** | 字段 summary / summary field。 | [optional] 
-**extension** | [**ToolExtension**](ToolExtension.md) | 字段 extension / extension field。 | [optional] 
+**type** | **str** | 类型判别值 / type discriminator。 |
+**tool_id** | **str** | 字段 toolId / tool id field。 |
+**tool_name** | **str** | 字段 toolName / tool name field。 |
+**status** | **str** | 当前状态 / current status。 |
+**action** | **str** | 字段 action / action field。 |
+**summary** | **str** | 字段 summary / summary field。 | [optional]
+**extension** | [**ToolExtension**](ToolExtension.md) | 字段 extension / extension field。 | [optional]
 
 ## Example
 

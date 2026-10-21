@@ -6,8 +6,8 @@ AskUserQuestionExtensionContent 的公开协议结构。 / Public contract for a
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**selected_options** | **List[str]** | 字段 selectedOptions / selected options field。 | 
-**custom_input** | **str** | 字段 customInput / custom input field。 | [optional] 
+**selected_options** | **List[str]** | 字段 selectedOptions / selected options field。 |
+**custom_input** | **str** | 字段 customInput / custom input field。 | [optional]
 
 ## Example
 

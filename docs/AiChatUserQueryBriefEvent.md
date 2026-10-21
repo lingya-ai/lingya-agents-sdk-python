@@ -6,9 +6,9 @@ AiChatUserQueryBriefEvent 的公开协议结构。 / Public contract for ai chat
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** | 类型判别值 / type discriminator。 | 
-**query** | **str** | 用户问题 / user query。 | 
-**attachments** | [**List[MediaAttachment]**](MediaAttachment.md) | 字段 attachments / attachments field。 | [optional] 
+**type** | **str** | 类型判别值 / type discriminator。 |
+**query** | **str** | 用户问题 / user query。 |
+**attachments** | [**List[MediaAttachment]**](MediaAttachment.md) | 字段 attachments / attachments field。 | [optional]
 
 ## Example
 

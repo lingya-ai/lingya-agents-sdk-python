@@ -6,8 +6,8 @@ AiChatMessageEvent 的公开协议结构。 / Public contract for ai chat messag
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**message_id** | **str** | 消息 ID / message ID。 | 
-**events** | [**List[AiChatBriefEvent]**](AiChatBriefEvent.md) | 字段 events / events field。 | 
+**message_id** | **str** | 消息 ID / message ID。 |
+**events** | [**List[AiChatBriefEvent]**](AiChatBriefEvent.md) | 字段 events / events field。 |
 
 ## Example
 

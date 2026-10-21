@@ -6,9 +6,10 @@ AgentsConfig 的公开协议结构。 / Public contract for agents config.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**var_model_config** | [**ModelConfig**](ModelConfig.md) | 字段 modelConfig / model config field。 | 
-**support_attachment_ext** | [**List[AttachmentExtension]**](AttachmentExtension.md) | 字段 supportAttachmentExt / support attachment ext field。 | 
-**max_attachment_count** | **int** | 字段 maxAttachmentCount / max attachment count field。 | 
+**var_model_config** | [**ModelConfig**](ModelConfig.md) | 字段 modelConfig / model config field。 |
+**support_attachment_ext** | [**List[AttachmentExtension]**](AttachmentExtension.md) | 字段 supportAttachmentExt / support attachment ext field。 |
+**max_attachment_count** | **int** | 字段 maxAttachmentCount / max attachment count field。 |
+**goal** | [**AgentGoalConfig**](AgentGoalConfig.md) | 字段 goal / goal field。 | [optional]
 
 ## Example
 

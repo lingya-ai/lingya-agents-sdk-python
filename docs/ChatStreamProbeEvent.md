@@ -6,9 +6,9 @@ ChatStreamProbeEvent 的公开协议结构。 / Public contract for chat stream 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**probe_id** | **str** | 字段 probeId / probe id field。 | 
-**sequence** | **int** | 字段 sequence / sequence field。 | 
-**server_elapsed_ms** | **int** | 字段 serverElapsedMs / server elapsed ms field。 | 
+**probe_id** | **str** | 字段 probeId / probe id field。 |
+**sequence** | **int** | 字段 sequence / sequence field。 |
+**server_elapsed_ms** | **int** | 字段 serverElapsedMs / server elapsed ms field。 |
 
 ## Example
 

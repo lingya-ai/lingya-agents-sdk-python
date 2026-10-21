@@ -6,7 +6,7 @@ ConversationTitleInput 的公开协议结构。 / Public contract for conversati
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**title** | **str** | 标题 / title。 | 
+**title** | **str** | 标题 / title。 |
 
 ## Example
 

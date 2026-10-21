@@ -6,7 +6,7 @@ ConversationStatusInput 的公开协议结构。 / Public contract for conversat
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**status** | **str** | 当前状态 / current status。 | 
+**status** | **str** | 当前状态 / current status。 |
 
 ## Example
 

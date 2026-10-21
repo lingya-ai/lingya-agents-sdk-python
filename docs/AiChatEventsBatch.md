@@ -6,8 +6,8 @@ AiChatEventsBatch 的公开协议结构。 / Public contract for ai chat events 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**records** | [**List[AiChatMessageEvent]**](AiChatMessageEvent.md) | 记录列表 / records。 | 
-**skipped** | [**List[AiChatEventsBatchSkipped]**](AiChatEventsBatchSkipped.md) | 字段 skipped / skipped field。 | 
+**records** | [**List[AiChatMessageEvent]**](AiChatMessageEvent.md) | 记录列表 / records。 |
+**skipped** | [**List[AiChatEventsBatchSkipped]**](AiChatEventsBatchSkipped.md) | 字段 skipped / skipped field。 |
 
 ## Example
 

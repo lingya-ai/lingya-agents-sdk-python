@@ -6,8 +6,8 @@ PlanStatus 的公开协议结构。 / Public contract for plan status.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**pending** | **bool** | 字段 pending / pending field。 | 
-**status** | **str** | 当前状态 / current status。 | 
+**pending** | **bool** | 字段 pending / pending field。 |
+**status** | **str** | 当前状态 / current status。 |
 
 ## Example
 

@@ -6,8 +6,8 @@ AttachmentExtension 的公开协议结构。 / Public contract for attachment ex
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**ext** | **str** | 字段 ext / ext field。 | 
-**media** | **str** | 字段 media / media field。 | 
+**ext** | **str** | 字段 ext / ext field。 |
+**media** | **str** | 字段 media / media field。 |
 
 ## Example
 

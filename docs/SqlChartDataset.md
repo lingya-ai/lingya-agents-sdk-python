@@ -6,10 +6,10 @@ SqlChartDataset 的公开协议结构。 / Public contract for sql chart dataset
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**result_id** | **str** | 字段 resultId / result id field。 | 
-**var_schema** | [**List[SqlResultColumnSchema]**](SqlResultColumnSchema.md) | 字段 schema / schema field。 | 
-**row_count** | **int** | 字段 rowCount / row count field。 | 
-**columns** | [**List[ChartColumnData]**](ChartColumnData.md) | 字段 columns / columns field。 | 
+**result_id** | **str** | 字段 resultId / result id field。 |
+**var_schema** | [**List[SqlResultColumnSchema]**](SqlResultColumnSchema.md) | 字段 schema / schema field。 |
+**row_count** | **int** | 字段 rowCount / row count field。 |
+**columns** | [**List[ChartColumnData]**](ChartColumnData.md) | 字段 columns / columns field。 |
 
 ## Example
 

@@ -6,9 +6,9 @@ ValidationError 的公开协议结构。 / Public contract for validation error.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**code** | **str** | 字段 code / code field。 | 
-**message** | **str** | 消息正文 / message text。 | 
-**fields** | [**List[FieldError]**](FieldError.md) | 字段 fields / fields field。 | 
+**code** | **str** | 字段 code / code field。 |
+**message** | **str** | 消息正文 / message text。 |
+**fields** | [**List[FieldError]**](FieldError.md) | 字段 fields / fields field。 |
 
 ## Example
 

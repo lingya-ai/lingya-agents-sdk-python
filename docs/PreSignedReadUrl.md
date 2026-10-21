@@ -6,7 +6,7 @@ PreSignedReadUrl 的公开协议结构。 / Public contract for pre signed read 
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**url** | **str** | 预签名 URL / presigned URL。 | 
+**url** | **str** | 预签名 URL / presigned URL。 |
 
 ## Example
 

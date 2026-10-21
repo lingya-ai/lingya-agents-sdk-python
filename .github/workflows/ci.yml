@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           repository: lingya-ai/lingya-agents-openapi
-          ref: v0.1.5
+          ref: v0.1.7
           path: lingya-agents-openapi
       - uses: actions/setup-python@v6
         with:
@@ -34,7 +34,7 @@ jobs:
         working-directory: lingya-agents-sdk-python
       - run: git diff --exit-code -- lingya_agents_sdk/bound_api.py
         working-directory: lingya-agents-sdk-python
-      - run: ruff check lingya_agents_sdk/client.py lingya_agents_sdk/bound_api.py lingya_agents_sdk/events.py lingya_agents_sdk/sse.py tests scripts
+      - run: ruff check .
         working-directory: lingya-agents-sdk-python
       - run: mypy
         working-directory: lingya-agents-sdk-python

@@ -6,11 +6,11 @@ UserInputAnswerInput 的公开协议结构。 / Public contract for user input a
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**conversation_id** | **str** | 会话 ID / conversation ID。 | 
-**message_id** | **str** | 消息 ID / message ID。 | 
-**question_id** | **str** | 字段 questionId / question id field。 | 
-**selected_options** | **List[str]** | 字段 selectedOptions / selected options field。 | 
-**custom_input** | **str** | 字段 customInput / custom input field。 | [optional] 
+**conversation_id** | **str** | 会话 ID / conversation ID。 |
+**message_id** | **str** | 消息 ID / message ID。 |
+**question_id** | **str** | 字段 questionId / question id field。 |
+**selected_options** | **List[str]** | 字段 selectedOptions / selected options field。 |
+**custom_input** | **str** | 字段 customInput / custom input field。 | [optional]
 
 ## Example
 

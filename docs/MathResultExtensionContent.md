@@ -6,7 +6,7 @@ MathResultExtensionContent 的公开协议结构。 / Public contract for math r
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**result** | **str** | 字段 result / result field。 | 
+**result** | **str** | 字段 result / result field。 |
 
 ## Example
 

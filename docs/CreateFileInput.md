@@ -6,8 +6,8 @@ CreateFileInput 的公开协议结构。 / Public contract for create file input
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**file_name** | **str** | 文件名 / file name。 | 
-**content_md5** | **str** | 字段 contentMd5 / content md5 field。 | 
+**file_name** | **str** | 文件名 / file name。 |
+**content_md5** | **str** | 字段 contentMd5 / content md5 field。 |
 
 ## Example
 
