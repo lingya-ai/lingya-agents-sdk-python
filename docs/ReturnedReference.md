@@ -6,7 +6,7 @@ ReturnedReference 的公开协议结构。 / Public contract for returned refere
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**type** | **str** | 类型判别值 / type discriminator。 |
+**citation_type** | **str** | 字段 citationType / citation type field。 |
 **reference_id** | **int** | 字段 referenceId / reference id field。 |
 
 ## Example

@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **type** | **str** | 类型判别值 / type discriminator。 |
 **message** | **str** | 消息正文 / message text。 |
+**terminal_reason** | **str** | 字段 terminalReason / terminal reason field。 | [optional]
 
 ## Example
 

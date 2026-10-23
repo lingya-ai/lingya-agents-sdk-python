@@ -8,7 +8,7 @@ Use this SDK to call Lingya Agents OpenAPI from a trusted Python server.
 Installation
 
 ```bash
-pip install lingya-agents-sdk==0.7.0
+pip install lingya-agents-sdk==1.0.0
 ```
 
 ## 一次性令牌回调
@@ -117,4 +117,4 @@ async with httpx.AsyncClient() as http:
 
 超时覆盖获取令牌、建连和完整响应；SDK 不自动重试或重连。业务 End 立即释放连接，WebSocket complete/1000 不补造 End。错误包含可判别分类、HTTP 状态和可取得的业务错误及请求标识。详见 [生命周期、错误和生成机制](docs/request-lifecycle.md)。运行时由契约项目统一生成，修改生成产物会被 CI 检出。
 
-Python 0.7.0 的 HTTP 契约仍为 v0.1.7；生成校验固定到契约仓库源码提交 `e123ce4ff58556b260303e9b1fb219a118667534`，包含 Python 3.10 的异步超时兼容修复。其他 CI/发布流程使用 v0.1.7 的 HTTP 契约快照。
+Python 1.0.0 的 HTTP 契约是 v1.0.0；生成校验固定到契约仓库 v1.0.0 标签，包含 Python 3.10 的异步超时兼容修复。CI/发布流程同样使用 v1.0.0 契约快照。

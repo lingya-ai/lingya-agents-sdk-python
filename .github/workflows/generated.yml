@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           repository: lingya-ai/lingya-agents-openapi
-          ref: e123ce4ff58556b260303e9b1fb219a118667534 # Runtime fix; HTTP contract remains v0.1.7
+          ref: v1.0.0
           path: lingya-agents-openapi
       - uses: actions/setup-node@v4
         with:

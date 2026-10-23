@@ -9,9 +9,11 @@ Name | Type | Description | Notes
 **type** | **str** | 类型判别值 / type discriminator。 |
 **query** | **str** | 用户问题 / user query。 |
 **attachments** | [**List[MediaAttachment]**](MediaAttachment.md) | 字段 attachments / attachments field。 | [optional]
+**execution_type** | **str** | 字段 executionType / execution type field。 | [optional]
 **level** | **str** | 字段 level / level field。 |
 **warning** | **str** | 字段 warning / warning field。 |
 **message** | **str** | 消息正文 / message text。 |
+**terminal_reason** | **str** | 字段 terminalReason / terminal reason field。 | [optional]
 **tool_id** | **str** | 字段 toolId / tool id field。 |
 **tool_name** | **str** | 字段 toolName / tool name field。 |
 **status** | **str** | 当前状态 / current status。 |

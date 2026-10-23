@@ -7,11 +7,8 @@ TaskSummary 的公开协议结构。 / Public contract for task summary.
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | **str** | 字段 id / id field。 |
-**subject** | **str** | 字段 subject / subject field。 |
-**active_form** | **str** | 字段 activeForm / active form field。 | [optional]
+**content** | **str** | 任务内容 / task content。 |
 **status** | **str** | 当前状态 / current status。 |
-**blocks** | **List[str]** | 字段 blocks / blocks field。 |
-**blocked_by** | **List[str]** | 字段 blockedBy / blocked by field。 |
 
 ## Example
 

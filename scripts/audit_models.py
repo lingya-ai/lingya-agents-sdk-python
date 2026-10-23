@@ -23,6 +23,8 @@ def main() -> None:
                     member.target.id.startswith("_")
                     or member.target.id == "discriminator_value_class_map"
                     or (node.name == "ConversationUserMessage" and member.target.id == "metadata")
+                    # Object-storage form fields are a string-to-string map by protocol design.
+                    or (node.name == "GeneratePreSignedUrlOutput" and member.target.id == "form_fields")
                     or _is_class_var(member.annotation)
                 ):
                     continue

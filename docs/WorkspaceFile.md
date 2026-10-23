@@ -6,6 +6,7 @@ WorkspaceFile 的公开协议结构。 / Public contract for workspace file.
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**file_id** | **int** | 文件 ID / file ID。 |
 **relative_path** | **str** | 字段 relativePath / relative path field。 |
 **size** | **int** | 大小（字节）或分页容量 / byte size or page size。 |
 **file_name** | **str** | 文件名 / file name。 |

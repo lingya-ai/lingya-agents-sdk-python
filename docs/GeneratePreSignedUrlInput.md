@@ -10,6 +10,7 @@ Name | Type | Description | Notes
 **module** | **str** | 字段 module / module field。 |
 **content_md5** | **str** | 字段 contentMd5 / content md5 field。 |
 **file_id** | **int** | 文件 ID / file ID。 | [optional]
+**size_bytes** | **int** | 实际文件大小（字节） / actual file size in bytes。 | [optional]
 
 ## Example
 

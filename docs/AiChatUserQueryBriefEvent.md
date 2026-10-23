@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **type** | **str** | 类型判别值 / type discriminator。 |
 **query** | **str** | 用户问题 / user query。 |
 **attachments** | [**List[MediaAttachment]**](MediaAttachment.md) | 字段 attachments / attachments field。 | [optional]
+**execution_type** | **str** | 字段 executionType / execution type field。 | [optional]
 
 ## Example
 

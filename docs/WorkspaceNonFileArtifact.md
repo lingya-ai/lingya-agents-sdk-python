@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **description** | **str** | 可读说明 / human-readable description。 |
 **last_update_time** | **datetime** | 最后更新时间 / last update time。 |
 **preview_url** | **str** | 字段 previewUrl / preview url field。 | [optional]
+**html_page_authoring_mode** | **str** | 字段 htmlPageAuthoringMode / html page authoring mode field。 | [optional]
 
 ## Example
 
